@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import ProductsRender from "./components/ProductsRender";
+import FooterContact from "./components/FooterContact";
 
 export default function HomePage() {
     return (
@@ -14,7 +15,7 @@ export default function HomePage() {
             <section></section>
 
             <ProductsRender/>
-
+            <FooterContact/>
         </div>
     );
 }
