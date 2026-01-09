@@ -46,7 +46,7 @@ export default function ProductsRender() {
                             <div className="w-full px-4">
                                 <p className="mt-3 text-md font-small">{p.name}</p>
 
-                                <p className="text-black font-medium text-lg mb-3">U$S{p.price}</p>
+                                <p className="text-black font-medium text-lg mb-3">U$S {p.price}</p>
                             </div>
 
                         </div>
