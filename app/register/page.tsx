@@ -58,9 +58,9 @@ export default function RegisterPage() {
                         </button>
 
                         <p className="text-xs text-gray-500">
-                            Already member?{" "}
+                            Ya tienes cuenta?{" "}
                             <a href="/login" className="text-black font-semibold underline">
-                                Sign in
+                                Iniciar sesión
                             </a>
                         </p>
                     </div>
@@ -68,7 +68,7 @@ export default function RegisterPage() {
                     {/* Card */}
                     <div className="p-10 rounded-2xl bg-white shadow-[0_0_40px_rgba(0,0,0,0.06)]">
                         <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">
-                            Sign Up
+                            Crear cuenta
                         </h1>
 
                         {/* FULL NAME */}
@@ -132,13 +132,13 @@ export default function RegisterPage() {
                         {/* PASSWORD RULES */}
                         <div className="ml-2 my-3 mb-8 text-sm space-y-1">
                             <p className={validLength ? "text-green-600" : "text-gray-400"}>
-                                */ At least 8 characters
+                                */ Por lo menos 8 caracteres
                             </p>
                             <p className={hasNumberSymbol ? "text-green-600" : "text-gray-400"}>
-                                */ At least one number (09) or symbol
+                                */ Por lo menos un número (09) o símbolo
                             </p>
                             <p className={hasUpperLower ? "text-green-600" : "text-gray-400"}>
-                                */ Lowercase (a-z) and uppercase (A-Z)
+                                */ Al menos una minúscula (a-z) y mayúscula (A-Z)
                             </p>
                         </div>
 
@@ -151,14 +151,14 @@ export default function RegisterPage() {
                                 className="px-10 py-3 bg-black text-white font-semibold rounded-full transition disabled:opacity-50 cursor-pointer"
                                 disabled={!isValidName(fullName) || !isValidEmail(email) || !passwordValid}
                             >
-                                {loading ? "Creating Account..." : "Sign Up"}
+                                {loading ? "Creando cuenta..." : "Crear"}
                             </button>
                         </div>
 
                         {/* Divider */}
                         <div className="flex items-center gap-4 my-6">
                             <div className="flex-1 h-px bg-gray-300" />
-                            <span className="text-gray-500 text-sm">Or (not working)</span>
+                            <span className="text-gray-500 text-sm">Registrarse con (not working)</span>
                             <div className="flex-1 h-px bg-gray-300" />
                         </div>
 
