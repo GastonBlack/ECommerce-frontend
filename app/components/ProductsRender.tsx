@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { productService } from "@/lib/api/products";
+import ProductModal from "./ProductModal";
+import { Product } from "@/lib/types/Product";
 
 export default function ProductsRender() {
     const [products, setProducts] = useState([]);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
     useEffect(() => {
         productService.getAll().then(setProducts).catch(console.error);
@@ -21,11 +24,12 @@ export default function ProductsRender() {
                         gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))",
                     }}
                 >
-                    {products.map((p: any) => (
+                    {products.map((p: Product) => (
 
                         <div key={p.id}
                             className="flex flex-col cursor-pointer w-70 bg-white shadow-sm rounded-md items-center
                             hover:shadow-md hover:shadow-2xl hover:scale-101 transition"
+                            onClick={() => setSelectedProduct(p)}
                         >
 
                             {/* Imagen */}
@@ -51,6 +55,13 @@ export default function ProductsRender() {
 
                         </div>
                     ))}
+
+                    {/*MODAL */}
+                    <ProductModal
+                        product={selectedProduct}
+                        onClose={() => setSelectedProduct(null)}
+                    />
+
                 </div>
             )}
         </section>
