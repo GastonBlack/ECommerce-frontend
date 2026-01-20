@@ -44,7 +44,7 @@ export default function LoginPage() {
                     {/* Top bar */}
                     <div className="flex items-center justify-between mb-6">
                         <button
-                            onClick={() => router.back()}
+                            onClick={() => router.push("/")}
                             className="flex items-center gap-2 text-gray-700 hover:text-black cursor-pointer"
                         >
                             <ArrowLeft className="w-5 h-5" />
