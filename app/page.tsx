@@ -4,18 +4,52 @@ import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import ProductsRender from "./components/ProductsRender";
 import FooterContact from "./components/FooterContact";
+import FiltersSidebar from "./components/FiltersSidebar";
+import { ProductFilters } from "@/lib/types/filters";
+import { Category } from "@/lib/types/category";
+import { CategoryService } from "@/lib/api/category";
 
 export default function HomePage() {
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [filters, setFilters] = useState<ProductFilters>({
+        categoryId: null,
+        minPrice: null,
+        maxPrice: null,
+        sort: null,
+        search: "",
+    });
+
+    useEffect(() => {
+        CategoryService.getAll().then(setCategories).catch(console.error);
+    }, []);
+
+    const clearFilters = () =>
+        setFilters({ categoryId: null, minPrice: null, maxPrice: null, sort: null, search: "" });
+
     return (
-        <div className="min-h-screen text-black bg-gray-200">
+        // Los IDs sirven para poder mover la scrollbar e ir a las secciones (contacto, top, etc).
+        <div id="top" className="min-h-screen text-black bg-gray-200">
+            <Header />
 
-            <Header/>
+            {/* Layout de filtros + productos */}
+            <section className="px-4 pb-4">
+                <div className="flex flex-col lg:flex-row gap-1">
+                    <FiltersSidebar
+                        categories={categories}
+                        value={filters}
+                        onChange={setFilters}
+                        onClear={clearFilters}
+                    />
 
-            {/* Seccion con imagen de fondo, falta implementar */}
-            <section></section>
+                    <main className="flex-1">
+                        <ProductsRender filters={filters} />
+                    </main>
+                </div>
+            </section>
 
-            <ProductsRender/>
-            <FooterContact/>
+            <div id="contact">
+                <FooterContact />
+            </div>
         </div>
     );
 }

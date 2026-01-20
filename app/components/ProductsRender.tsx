@@ -1,34 +1,77 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { productService } from "@/lib/api/products";
 import ProductModal from "./ProductModal";
-import { Product } from "@/lib/types/Product";
+import { Product } from "@/lib/types/product";
+import { ProductFilters } from "@/lib/types/filters";
 
-export default function ProductsRender() {
-    const [products, setProducts] = useState([]);
+type Props = {
+    filters?: ProductFilters;
+};
+
+export default function ProductsRender({ filters }: Props) {
+    const [products, setProducts] = useState<Product[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
     useEffect(() => {
         productService.getAll().then(setProducts).catch(console.error);
     }, []);
-    
+
+    /* SECCION DE FILTROS */
+    // ===============================================
+    const filtered = useMemo(() => {
+        let list = [...products];
+
+        if (filters?.categoryId) {
+            list = list.filter((p: any) => p.categoryId === filters.categoryId);
+        }
+
+        if (filters?.minPrice != null) list = list.filter((p) => p.price >= filters.minPrice!);
+        if (filters?.maxPrice != null) list = list.filter((p) => p.price <= filters.maxPrice!);
+
+        if (filters?.search) {
+            const q = filters.search.toLowerCase();
+            list = list.filter((p) => p.name.toLowerCase().includes(q));
+        }
+
+        switch (filters?.sort) {
+            case "price-asc":
+                list.sort((a, b) => a.price - b.price);
+                break;
+            case "price-desc":
+                list.sort((a, b) => b.price - a.price);
+                break;
+            case "name-asc":
+                list.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            case "name-desc":
+                list.sort((a, b) => b.name.localeCompare(a.name));
+                break;
+        }
+
+        return list;
+    }, [products, filters]);
+    // ===================================================================================================
+
     return (
-        <section className="w-full px-8 mt-4 pb-4">
+        <section id="products" className="w-full px-8 mt-4 pb-4">
             {products.length === 0 ? (
                 <p className="text-gray-500">Cargando productos...</p>
             ) : (
                 <div
-                    className="grid gap-10 gap-y-5 bg-gray-200"
+                    className="grid gap-10 gap-y-5 bg-gray-200 justify-start"
                     style={{
-                        gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(16rem, 16rem))",
                     }}
                 >
-                    {products.map((p: Product) => (
+                    {filtered.map((p: Product) => (
 
                         <div key={p.id}
-                            className="flex flex-col cursor-pointer w-70 bg-white shadow-sm rounded-md items-center
-                            hover:shadow-md hover:shadow-2xl hover:scale-101 transition"
+                            className="
+                                flex flex-col cursor-pointer w-70 bg-white shadow-sm rounded-md items-center
+                                hover:shadow-md hover:shadow-2xl hover:scale-101 transition
+                            "
                             onClick={() => setSelectedProduct(p)}
                         >
 
