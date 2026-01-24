@@ -9,15 +9,13 @@ import {
 
 export default function FooterContact() {
     return (
-        <footer className="w-full bg-black text-gray-300 px-10 pt-14 pb-6">
+        <footer className="w-full bg-black text-gray-300 px-10 pt-14 pb-6 ">
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-                <div>
+                <div className="flex flex-col items-center justify-center text-sm leading-relaxed">
                     <h2 className="text-white text-2xl font-bold mb-3">ECommerce</h2>
-                    <p className="text-sm leading-relaxed">
-                        Tu tienda online de tecnología de última generación.
-                        Comprá fácil, rápido y seguro.
-                    </p>
+                    <p>Tu tienda online de tecnología de última generación.</p>
+                    <p>Comprá fácil, rápido y seguro.</p>
                 </div>
 
                 <div>
