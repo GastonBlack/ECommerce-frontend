@@ -136,7 +136,10 @@ export default function Header() {
                                     <a
                                         href="/profile"
                                         className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-100"
-                                        onClick={() => setMenuOpen(false)}
+                                        onClick={() => {
+                                            setMenuOpen(false)
+                                            router.push("/profile")
+                                        }}
                                     >
                                         <User className="w-4 h-4" />
                                         Mi perfil
