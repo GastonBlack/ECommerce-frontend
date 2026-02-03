@@ -17,3 +17,16 @@ export function isValidPhone(phone: string): boolean {
     // Permite +59899123456 o 099123456.
     return /^\+?\d{7,15}$/.test(value);
 }
+
+// Mueve la scrollbar del usuario a un sitio en concreto.
+export function scrollToId(id: string) {
+    if (typeof window === "undefined") return;
+
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+    });
+}

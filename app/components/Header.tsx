@@ -13,9 +13,12 @@ import {
     Phone,
     Home,
 } from "lucide-react";
+import { getUserFromToken } from "@/lib/helpers/jwt/getUserFromToken";
+import { scrollToId } from "@/utils";
 
 export default function Header() {
     const [userName, setUserName] = useState<string | null>(null);
+    const [userRol, setUserRol] = useState<string | null>("");
     const [menuOpen, setMenuOpen] = useState(false);
 
     const router = useRouter();
@@ -25,6 +28,9 @@ export default function Header() {
     useEffect(() => {
         const name = localStorage.getItem("userName");
         setUserName(name);
+
+        const user = getUserFromToken();
+        setUserRol(user?.rol ?? null);
     }, []);
 
     // Para que cierre si hace click afuera.
@@ -52,12 +58,6 @@ export default function Header() {
         router.push("/");
     };
 
-    const scrollToId = (id: string) => {
-        const elementoAIr = document.getElementById(id);
-        if (!elementoAIr) return;
-        elementoAIr.scrollIntoView({ behavior: "smooth", block: "start" });
-    };
-
     return (
         <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white">
             <div className="w-full py-4 px-8 flex justify-between items-center">
@@ -65,7 +65,7 @@ export default function Header() {
                     onClick={() => scrollToId("top")}
                     className="text-2xl font-bold tracking-tight hover:opacity-80 cursor-pointer"
                 >
-                    ECommerce
+                    ECommerce {userRol}
                 </button>
 
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -153,6 +153,17 @@ export default function Header() {
                                         <Package className="w-4 h-4" />
                                         Mis pedidos
                                     </a>
+
+                                    {userRol === "Admin" && (
+                                        <a
+                                            href="/admin"
+                                            className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-100"
+                                            onClick={() => setMenuOpen(false)}
+                                        >
+                                            <Package className="w-4 h-4" />
+                                            Panel de Administración
+                                        </a>
+                                    )}
 
                                     <button
                                         onClick={logout}
