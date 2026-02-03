@@ -7,7 +7,7 @@ import FooterContact from "./components/FooterContact";
 import FiltersSidebar from "./components/FiltersSidebar";
 import { ProductFilters } from "@/lib/types/filters";
 import { Category } from "@/lib/types/category";
-import { CategoryService } from "@/lib/api/category";
+import { categoryService } from "@/lib/api/category";
 
 export default function HomePage() {
     const [categories, setCategories] = useState<Category[]>([]);
@@ -20,7 +20,7 @@ export default function HomePage() {
     });
 
     useEffect(() => {
-        CategoryService.getAll().then(setCategories).catch(console.error);
+        categoryService.getAll().then(setCategories).catch(console.error);
     }, []);
 
     const clearFilters = () =>
