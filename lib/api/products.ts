@@ -1,5 +1,6 @@
 import api from "./axios";
 import type { Product } from "@/lib/types/product";
+import type { AdminProduct } from "../types/adminProduct";
 
 export type ProductCreateDto = {
     name: string;
@@ -13,8 +14,10 @@ export type ProductCreateDto = {
 export type ProductUpdateDto = ProductCreateDto;
 
 export const productService = {
-    async getAll(): Promise<Product[]> {
-        const res = await api.get("/product");
+    async getAll(sort?: string): Promise<Product[]> { // Parametro para que pueda aceptar el filtro popular.
+        const res = await api.get("/product", {
+            params: sort ? { sort } : undefined,
+        });
         return res.data;
     },
 
@@ -47,5 +50,16 @@ export const productService = {
         });
 
         return res.data.imageUrl;
+    },
+
+    // ======== ADMIN ======= //
+    async getAllAdmin(): Promise<AdminProduct[]> {
+        const res = await api.get("/product/admin");
+        return res.data;
+    },
+
+    async getByIdAdmin(id: number): Promise<AdminProduct[]> {
+        const res = await api.get(`/product/admin/${id}`);
+        return res.data;
     }
 };
