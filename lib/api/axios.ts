@@ -1,25 +1,26 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:5155/api", // Puerto temporal, cuando se haga el deploy lo cambio.
-    withCredentials: false
+    baseURL: "http://localhost:5155/api",
+    withCredentials: true,
 });
 
-// INTERCEPTOR PARA AGREGAR TOKEN
-api.interceptors.request.use((config) => {
-    if (typeof window !== "undefined") {
-        const token = localStorage.getItem("token");
-        if (token) config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-})
-
-// INTERCEPTOR PARA ERRORES
 api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        console.error("API Error: ", error);
-        throw error;
+    (res) => res,
+    (err) => {
+        const status = err.response?.status;
+        const url = err.config?.url || "";
+
+        const isAuthCheck =
+            url.includes("/auth/verify") ||
+            url.includes("/auth/login") ||
+            url.includes("/auth/register");
+
+        if (typeof window !== "undefined" && status === 401 && !isAuthCheck) {
+            window.location.href = "/";
+        }
+
+        return Promise.reject(err);
     }
 );
 

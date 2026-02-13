@@ -4,29 +4,20 @@ export const authService = {
     async login(email: string, password: string) {
         const res = await api.post("/auth/login", { email, password });
 
-        const { token, fullName } = res.data;
-
-        localStorage.setItem("token", token);
-        localStorage.setItem("userName", fullName);
-
-        return { fullName };
+        localStorage.setItem("userName", res.data.fullName);
+        return { fullName: res.data.fullName };
     },
-
 
     async register(fullName: string, email: string, password: string) {
         const res = await api.post("/auth/register", { fullName, email, password });
 
-        const { token, fullName: name } = res.data;
-
-        localStorage.setItem("token", token);
-        localStorage.setItem("userName", name);
-
-        return { fullName: name };
+        localStorage.setItem("userName", res.data.fullName);
+        return { fullName: res.data.fullName };
     },
 
-
-    logout() {
-        localStorage.removeItem("token");
+    async logout() {
+        await api.post("/auth/logout");
         localStorage.removeItem("userName");
+        window.location.href = "/";
     },
 };

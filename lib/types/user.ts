@@ -4,4 +4,5 @@ export type UserMe = {
     email: string;
     phone?: string | null;
     address?: string | null;
+    rol: string,
 };

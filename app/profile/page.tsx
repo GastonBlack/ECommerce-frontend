@@ -8,9 +8,11 @@ import { UserMe } from "@/lib/types/user";
 import { userService } from "@/lib/api/user";
 import { authService } from "@/lib/api/auth";
 import { isValidPhone } from "@/utils";
+import { AuthProvider, useAuth } from "../components/AuthProvider";
 
 export default function HomePage() {
     const router = useRouter();
+    const { user, loadingAuth, refresh } = useAuth(); // Contexto de AuthProvider.
 
     const [me, setMe] = useState<UserMe | null>(null);
     const [loading, setLoading] = useState(true);
@@ -30,28 +32,19 @@ export default function HomePage() {
 
     // Al iniciar obtiene los datos del usuario y los carga.
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            router.push("/login");
+        if (loadingAuth) return;
+
+        if (!user) {
+            router.replace("/login");
             return;
         }
 
-        (async () => {
-            try {
-                setLoading(true);
-                const data = await userService.getMe();
-
-                setMe(data);
-                setFullName(data.fullName ?? "");
-                setAddress(data.address ?? "");
-                setPhone(data.phone ?? "");
-            } catch (e) {
-                router.push("/login");
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, [router]);
+        setMe(user);
+        setFullName(user.fullName ?? "");
+        setAddress(user.address ?? "");
+        setPhone(user.phone ?? "");
+        setLoading(false);
+    }, [loadingAuth, user, router]);
 
     const hasChanges = useMemo(() => {
         if (!me) return false;
@@ -85,9 +78,7 @@ export default function HomePage() {
             });
 
             setMe(updated);
-
-            // Para q el Header se actualice.
-            localStorage.setItem("userName", updated.fullName);
+            await refresh();
 
             setMsg("Perfil actualizado");
             setMsgType("success");
@@ -140,10 +131,15 @@ export default function HomePage() {
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
         authService.logout();
+        await refresh();
         router.push("/");
     };
+    
+    if (loadingAuth) {
+        return <div className="p-6 text-gray-500">Cargando perfil ...</div>;
+    }
 
     return (
         <div className="min-h-screen flex flex-col bg-white text-black">

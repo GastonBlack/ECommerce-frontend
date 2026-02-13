@@ -15,12 +15,16 @@ import {
     Menu,
     X,
 } from "lucide-react";
-import { getUserFromToken } from "@/lib/helpers/jwt/getUserFromToken";
 import { scrollToId } from "@/utils";
+import { useAuth } from "./AuthProvider"; // <-- ajustá si tu path es otro
+import api from "@/lib/api/axios";
 
 export default function Header() {
-    const [userName, setUserName] = useState<string | null>(null);
-    const [userRol, setUserRol] = useState<string | null>("");
+    const { user, loadingAuth, refresh } = useAuth();
+
+    const userName = user?.fullName ?? null;
+    const userRol = user?.rol ?? null;
+
     const [menuOpen, setMenuOpen] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -29,14 +33,6 @@ export default function Header() {
 
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const mobileRef = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        const name = localStorage.getItem("userName");
-        setUserName(name);
-
-        const user = getUserFromToken();
-        setUserRol(user?.rol ?? null);
-    }, []);
 
     // Cierra dropdown desktop si hace click afuera.
     useEffect(() => {
@@ -77,19 +73,22 @@ export default function Header() {
         }
     };
 
-    const logout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("userName");
-        setUserName(null);
-        setMenuOpen(false);
-        setMobileOpen(false);
-        router.push("/");
-    };
-
     const goContact = () => {
-        // Si el usuario está en "/" o "/products" y el footer existe, scrollea.
         scrollToId("contact");
         setMobileOpen(false);
+    };
+
+    const logout = async () => {
+        try {
+            await api.post("/auth/logout");
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setMenuOpen(false);
+            setMobileOpen(false);
+            await refresh();
+            router.push("/");
+        }
     };
 
     return (
@@ -127,7 +126,9 @@ export default function Header() {
 
                 <div className="flex items-center gap-3 sm:gap-6">
                     <div className="hidden md:block">
-                        {!userName ? (
+                        {loadingAuth ? (
+                            <div className="text-sm text-gray-400">...</div>
+                        ) : !userName ? (
                             <div className="flex gap-2 text-sm">
                                 <button
                                     onClick={() => router.push("/login")}
@@ -245,6 +246,7 @@ export default function Header() {
                         absolute inset-0 bg-black/30 transition-opacity
                         ${mobileOpen ? "opacity-100" : "opacity-0"}
                     `}
+                    onClick={() => setMobileOpen(false)}
                 />
 
                 <div
@@ -292,7 +294,9 @@ export default function Header() {
 
                         <div className="my-2 h-px bg-gray-200" />
 
-                        {!userName ? (
+                        {loadingAuth ? (
+                            <div className="px-3 py-2 text-sm text-gray-400">Cargando...</div>
+                        ) : !userName ? (
                             <>
                                 <button
                                     onClick={() => {

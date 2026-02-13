@@ -6,6 +6,7 @@ import { authService } from "@/lib/api/auth";
 import { isValidEmail } from "@/utils";
 import FooterContact from "../components/FooterContact";
 import { ArrowLeft, Mail, Lock, Check } from "lucide-react";
+import { useAuth } from "../components/AuthProvider";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -19,6 +20,8 @@ export default function LoginPage() {
     const emailValid = isValidEmail(email);
     const passwordValid = password.length > 0;
 
+    const { refresh } = useAuth(); // Refrescar contexto en AuthProvider.
+
     const handleLogin = async () => {
         setError("");
 
@@ -28,6 +31,7 @@ export default function LoginPage() {
         try {
             setLoading(true);
             await authService.login(email, password);
+            await refresh(); // Refrescar AuthProvider
             router.push("/");
         } catch (err: any) {
             setError(err.response?.data?.error || "Credenciales inválidas.");
