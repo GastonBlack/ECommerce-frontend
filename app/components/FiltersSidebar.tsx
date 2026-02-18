@@ -35,7 +35,7 @@ export default function FiltersSidebar({
 
                 <button
                     onClick={onClear}
-                    className="text-xs sm:text-sm font-semibold px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                    className="text-xs sm:text-sm font-semibold px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"
                     type="button"
                 >
                     Limpiar
@@ -62,7 +62,7 @@ export default function FiltersSidebar({
                         <button
                             key={c.id}
                             className={`
-                                shrink-0 text-sm px-4 py-2 rounded-lg border
+                                shrink-0 text-sm px-4 py-2 rounded-lg border cursor-pointer
                                 ${value.categoryId === c.id
                                     ? "bg-black text-white border-black"
                                     : "bg-white hover:bg-gray-50 border-gray-200"}
@@ -91,7 +91,7 @@ export default function FiltersSidebar({
                         <button
                             key={c.id}
                             className={`
-                                text-left text-sm px-3 py-2 rounded-lg border
+                                text-left cursor-pointer text-sm px-3 py-2 rounded-lg border
                                 ${value.categoryId === c.id
                                     ? "bg-black text-white border-black"
                                     : "bg-white hover:bg-gray-50 border-gray-200"}

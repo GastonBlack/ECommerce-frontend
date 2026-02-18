@@ -4,6 +4,7 @@ import { ListPlus, X } from "lucide-react";
 import { Product } from "@/lib/types/product";
 import { cartService } from "@/lib/api/cart";
 import { useRouter } from "next/navigation";
+import { useNotification } from "./NotificationProvider";
 
 export default function ProductModal({
     product,
@@ -13,6 +14,7 @@ export default function ProductModal({
     onClose: () => void;
 }) {
     const router = useRouter();
+    const { showNotification } = useNotification();
 
     if (!product) return null;
 
@@ -119,7 +121,7 @@ export default function ProductModal({
                                         h-12 w-full rounded-xl font-semibold text-sm bg-black text-white
                                         hover:bg-gray-900 transition
                                         active:scale-[0.98]
-                                        disabled:opacity-50 disabled:cursor-not-allowed
+                                        disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
                                     "
                                     type="button"
                                 >
@@ -131,23 +133,23 @@ export default function ProductModal({
                                     onClick={async () => {
                                         try {
                                             await cartService.add(product.id, 1);
-                                            onClose();
                                         } catch (err: any) {
                                             if (err.response?.status === 401) {
                                                 router.push("/login");
+                                                showNotification("Error, usuario no encontrado.", "error")
                                                 return;
                                             }
                                             console.error(err);
-                                            alert("Error al agregar al carrito");
+                                            showNotification("Error, no se pudo añadir al carrito.", "error")
                                             return;
                                         }
-                                        alert(`Producto agregado: ${product.name}`);
+                                        showNotification("Producto añadido al carrito.", "success")
                                     }}
                                     className="
                                         h-12 w-full rounded-xl font-semibold text-sm bg-blue-600 text-white
                                         hover:bg-blue-700 transition active:scale-[0.98]
                                         disabled:opacity-50 disabled:cursor-not-allowed
-                                        flex items-center justify-center gap-2
+                                        flex items-center justify-center gap-2 cursor-pointer
                                     "
                                     type="button"
                                 >

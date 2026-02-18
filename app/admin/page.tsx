@@ -10,6 +10,8 @@ import ProductForm from "../components/admin/products/ProductForm";
 import CategoriesTable from "../components/admin/categories/CategoriesTable";
 import CategoryForm from "../components/admin/categories/CategoryForm";
 import UsersSection from "../components/admin/users/UsersSection";
+import ConfirmModal from "../components/ConfirmModal";
+import { useNotification } from "../components/NotificationProvider";
 
 import { productService } from "@/lib/api/products";
 import { categoryService } from "@/lib/api/category";
@@ -24,6 +26,14 @@ export type AdminTab = "products" | "categories" | "orders" | "users";
 export default function AdminPage() {
     const router = useRouter();
     const { user, loadingAuth } = useAuth();
+    const { showNotification } = useNotification();
+
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+    const [confirmProductOpen, setConfirmProductOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [confirmCategoryOpen, setConfirmCategoryOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
     const [tab, setTab] = useState<AdminTab>("products");
     const [loading, setLoading] = useState(false);
@@ -56,16 +66,8 @@ export default function AdminPage() {
 
     useEffect(() => {
         if (loadingAuth) return;
-
-        if (!user) {
-            router.replace("/login");
-            return;
-        }
-
-        if (user.rol !== "Admin") {
+        if (!user || user.rol !== "Admin")
             router.replace("/");
-            return;
-        }
 
         reloadAll();
     }, [loadingAuth, user, router]);
@@ -75,6 +77,104 @@ export default function AdminPage() {
         return <div className="p-6 text-gray-600">Verificando sesión...</div>;
     }
     if (!user || user.rol !== "Admin") return null;
+
+
+    //////////////
+    // HANDLERS //
+    //////////////
+    const openDisableConfirm = (u: AdminUser) => {
+        setSelectedUser(u);
+        setConfirmOpen(true);
+    };
+
+    const closeConfirm = () => {
+        setConfirmOpen(false);
+        setSelectedUser(null);
+    };
+
+    const confirmDisable = async () => {
+        if (!selectedUser) return;
+
+        try {
+            await adminUsersService.disable(selectedUser.id);
+
+            setUsers((prev) =>
+                prev.map((x) =>
+                    x.id === selectedUser.id ? { ...x, isDisabled: true } : x
+                )
+            );
+
+            showNotification("Usuario deshabilitado correctamente.", "success");
+        } catch (e: any) {
+            showNotification(
+                e?.response?.data?.error || "No se pudo deshabilitar el usuario.",
+                "error"
+            );
+        } finally {
+            closeConfirm();
+        }
+    };
+
+    const openDeleteProductConfirm = (p: Product) => {
+        setSelectedProduct(p);
+        setConfirmProductOpen(true);
+    };
+
+    const closeDeleteProductConfirm = () => {
+        setConfirmProductOpen(false);
+        setSelectedProduct(null);
+    };
+
+    const confirmDeleteProduct = async () => {
+        if (!selectedProduct) return;
+
+        try {
+            await productService.remove(selectedProduct.id);
+            await reloadAll();
+            if (editingProduct?.id == selectedProduct.id)
+                setEditingProduct(null);
+
+            showNotification("Producto eliminado correctamente.", "success");
+        } catch (e: any) {
+            showNotification(
+                e?.response?.data?.error || "No se pudo eliminar el producto.",
+                "error"
+            );
+        } finally {
+            closeDeleteProductConfirm();
+        }
+    };
+
+    const openDeleteCategoryConfirm = (c: Category) => {
+        setSelectedCategory(c);
+        setConfirmCategoryOpen(true);
+    };
+
+    const closeDeleteCategoryConfirm = () => {
+        setConfirmCategoryOpen(false);
+        setSelectedCategory(null);
+    };
+
+    const confirmDeleteCategory = async () => {
+        if (!selectedCategory) return;
+
+        try {
+            await categoryService.remove(selectedCategory.id);
+            await reloadAll();
+
+            showNotification("Categoría eliminada correctamente.", "success");
+        } catch (e: any) {
+            showNotification(
+                e?.response?.data?.error ||
+                "No se pudo eliminar la categoría. Puede tener productos asociados.",
+                "error"
+            );
+        } finally {
+            closeDeleteCategoryConfirm();
+        }
+    };
+    //////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////
 
     return (
         <AdminLayout
@@ -95,7 +195,7 @@ export default function AdminPage() {
                             products={products}
                             categories={categories}
                             onEdit={(p) => setEditingProduct(p)}
-                            onDeleted={reloadAll}
+                            onDeleteRequest={openDeleteProductConfirm}
                         />
                     </div>
 
@@ -117,7 +217,7 @@ export default function AdminPage() {
                         <CategoriesTable
                             categories={categories}
                             onEdit={(c) => setEditingCategory(c)}
-                            onDeleted={reloadAll}
+                            onDeleteRequest={openDeleteCategoryConfirm}
                         />
                     </div>
 
@@ -145,17 +245,33 @@ export default function AdminPage() {
                     loading={loading}
                     error={error}
                     onReload={reloadAll}
-                    onDisable={async (u) => {
-                        if (!confirm(`¿Deshabilitar a "${u.fullName}"?`)) return;
-                        await adminUsersService.disable(u.id);
-                        setUsers((prev) => prev.map((x) => (x.id === u.id ? { ...x, isDisabled: true } : x)));
-                    }}
+                    onDisable={(u) => openDisableConfirm(u)}
                     onEnable={async (u) => {
                         await adminUsersService.enable(u.id);
                         setUsers((prev) => prev.map((x) => (x.id === u.id ? { ...x, isDisabled: false } : x)));
                     }}
                 />
             )}
+
+            <ConfirmModal
+                open={confirmOpen}
+                message={`¿Deshabilitar a "${selectedUser?.fullName}"?`}
+                onConfirm={confirmDisable}
+                onCancel={closeConfirm}
+            />
+            <ConfirmModal
+                open={confirmProductOpen}
+                message={`¿Eliminar el producto "${selectedProduct?.name}"? Esta acción no se puede deshacer.`}
+                onConfirm={confirmDeleteProduct}
+                onCancel={closeDeleteProductConfirm}
+            />
+            <ConfirmModal
+                open={confirmCategoryOpen}
+                message={`¿Eliminar la categoría "${selectedCategory?.name}"? \n (Si hay productos con esta categoría no podrá ser eliminada).`}
+                onConfirm={confirmDeleteCategory}
+                onCancel={closeDeleteCategoryConfirm}
+            />
+
         </AdminLayout>
     );
 }

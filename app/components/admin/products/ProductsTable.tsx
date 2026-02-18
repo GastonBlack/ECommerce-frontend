@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { Pencil, Trash2, Search, ChevronDown } from "lucide-react";
-import { productService } from "@/lib/api/products";
 import type { Product } from "@/lib/types/product";
 import type { Category } from "@/lib/types/category";
 import { scrollToId } from "@/utils";
@@ -13,12 +12,12 @@ export default function ProductsTable({
     products,
     categories,
     onEdit,
-    onDeleted,
+    onDeleteRequest,
 }: {
     products: Product[];
     categories: Category[];
     onEdit: (p: Product) => void;
-    onDeleted: () => void;
+    onDeleteRequest: (p: Product) => void;
 }) {
     const [idQuery, setIdQuery] = useState("");
     const [nameQuery, setNameQuery] = useState("");
@@ -27,12 +26,6 @@ export default function ProductsTable({
 
     const categoryName = (id: number) =>
         categories.find((c) => c.id === id)?.name ?? "—";
-
-    const remove = async (id: number) => {
-        if (!confirm("¿Eliminar producto?")) return;
-        await productService.remove(id);
-        onDeleted();
-    };
 
     const filteredProducts = useMemo(() => {
         const idQ = idQuery.trim();
@@ -213,7 +206,7 @@ export default function ProductsTable({
                                         </button>
 
                                         <button
-                                            onClick={() => remove(p.id)}
+                                            onClick={() => onDeleteRequest(p)}
                                             className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-white cursor-pointer text-red-600"
                                             title="Eliminar"
                                         >

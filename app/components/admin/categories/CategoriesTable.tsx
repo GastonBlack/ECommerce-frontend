@@ -8,17 +8,12 @@ import { scrollToId } from "@/utils";
 export default function CategoriesTable({
     categories,
     onEdit,
-    onDeleted,
+    onDeleteRequest,
 }: {
     categories: Category[];
     onEdit: (c: Category) => void;
-    onDeleted: () => void;
+    onDeleteRequest: (c: Category) => void;
 }) {
-    const remove = async (id: number) => {
-        if (!confirm("¿Eliminar categoría?")) return;
-        await categoryService.remove(id);
-        onDeleted();
-    };
 
     return (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -55,7 +50,7 @@ export default function CategoriesTable({
                                         </button>
 
                                         <button
-                                            onClick={() => remove(c.id)}
+                                            onClick={() => onDeleteRequest(c)}
                                             className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-white cursor-pointer text-red-600"
                                             title="Eliminar"
                                         >

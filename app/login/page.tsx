@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/api/auth";
 import { isValidEmail } from "@/utils";
 import FooterContact from "../components/FooterContact";
 import { ArrowLeft, Mail, Lock, Check } from "lucide-react";
 import { useAuth } from "../components/AuthProvider";
+import { useSearchParams } from "next/navigation";
+import { useNotification } from "../components/NotificationProvider";
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const { showNotification } = useNotification();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -40,12 +44,20 @@ export default function LoginPage() {
         }
     };
 
+    // Mensajes.
+    useEffect(() => {
+        if (searchParams.get("expired") === "true")
+            showNotification("Tu sesión venció, por favor, vuelve a iniciar sesión.", "error");
+
+        if (searchParams.get("needUser") === "true")
+            showNotification("Inicia sesión para acceder al carrito.", "error");
+    }, []);
+
     return (
         <div className="min-h-screen flex flex-col bg-white text-black">
-            {/* CONTENT */}
             <main className="flex-1 px-6 py-10 flex justify-center">
                 <div className="w-full max-w-lg">
-                    {/* Top bar */}
+
                     <div className="flex items-center justify-between mb-6">
                         <button
                             onClick={() => router.push("/")}
@@ -63,13 +75,11 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    {/* Card */}
                     <div className="p-10 rounded-2xl bg-white shadow-[0_0_40px_rgba(0,0,0,0.06)]">
                         <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">
                             Iniciar sesión
                         </h1>
 
-                        {/* EMAIL */}
                         <div className="mb-5">
                             <div className="flex items-center border border-gray-300 rounded-xl px-3">
                                 <Mail className="w-5 h-5 text-black" />
@@ -84,7 +94,6 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        {/* PASSWORD */}
                         <div className="mb-2">
                             <div className="flex items-center border border-gray-300 rounded-xl px-3">
                                 <Lock className="w-5 h-5 text-black" />
@@ -105,7 +114,6 @@ export default function LoginPage() {
                             </a>
                         </div>
 
-                        {/* ERROR + BUTTON */}
                         <div className="flex flex-col items-center">
                             {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
@@ -118,14 +126,12 @@ export default function LoginPage() {
                             </button>
                         </div>
 
-                        {/* Divider */}
                         <div className="flex items-center gap-4 my-6">
                             <div className="flex-1 h-px bg-gray-300" />
                             <span className="text-gray-500 text-sm">Iniciar sesión con (not working)</span>
                             <div className="flex-1 h-px bg-gray-300" />
                         </div>
 
-                        {/* Socials (de momento) */}
                         <div className="flex justify-center gap-4">
                             <button className="w-12 h-12 flex items-center justify-center rounded-full border border-gray-300">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-8" viewBox="0 0 256 262">
@@ -140,7 +146,6 @@ export default function LoginPage() {
                 </div>
             </main>
 
-            {/* FOOTER ABAJO */}
             <FooterContact />
         </div>
     );

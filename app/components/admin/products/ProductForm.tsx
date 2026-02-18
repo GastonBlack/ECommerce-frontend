@@ -6,7 +6,7 @@ import { productService } from "@/lib/api/products";
 
 import type { Product } from "@/lib/types/product";
 import type { Category } from "@/lib/types/category";
-import { scrollToId } from "@/utils";
+import { useNotification } from "../../NotificationProvider";
 
 type FormState = {
     name: string;
@@ -37,6 +37,8 @@ export default function ProductForm({
     onSaved: () => void;
     onCancel: () => void;
 }) {
+    const { showNotification } = useNotification();
+
     const [open, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
@@ -112,6 +114,7 @@ export default function ProductForm({
 
             close();
             onSaved();
+            product?.id ? showNotification("Producto editado con éxito", "success") : showNotification("Producto creador con éxito.", "success");
         } catch (e: any) {
             setError(
                 e?.response?.data?.error ||
