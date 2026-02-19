@@ -22,7 +22,7 @@ export default function HomePage() {
 
     const router = useRouter();
 
-    const bannerUrl = "https://res.cloudinary.com/danl5ulmr/image/upload/v1770774381/vecteezy_online-shopping-on-phone-buy-sell-business-digital-web_4299835_fbzrml.jpg";
+    const bannerUrl = process.env.NEXT_PUBLIC_CLOUDINARY_BANNER_URL_MAIN_PAGE;
 
     useEffect(() => {
         categoryService.getAll().then(setCategories).catch(console.error);
