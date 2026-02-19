@@ -7,6 +7,7 @@ import { Minus, Plus, Trash2, ArrowLeft } from "lucide-react";
 import { cartService } from "@/lib/api/cart";
 import { CartItem } from "@/lib/types/cartItem";
 import { useAuth } from "../components/AuthProvider";
+import { paymentsService } from "@/lib/api/payment";
 
 export default function CartPage() {
     const router = useRouter();
@@ -109,6 +110,27 @@ export default function CartPage() {
     }
 
     if (!user) return null;
+
+    const goPay = async () => {
+        setError("");
+        try {
+            setBusyId(-2);
+
+            const pref = await paymentsService.createPreference();
+            const url = pref.sandboxInitPoint || pref.initPoint;
+
+            if (!url) {
+                setError("Mercado Pago no devolvió un link de pago.");
+                return;
+            }
+            localStorage.setItem("lastOrderId", String(pref.orderId));
+            window.location.href = url;
+        } catch (e: any) {
+            setError(e?.response?.data?.error || "No se pudo iniciar el pago.");
+        } finally {
+            setBusyId(null);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-white text-black">
@@ -249,7 +271,7 @@ export default function CartPage() {
                             </div>
 
                             <button
-                                onClick={() => alert("Checkout (pendiente)")}
+                                onClick={goPay}
                                 className="mt-6 w-full h-12 rounded-full bg-black text-white font-semibold hover:bg-gray-900 transition cursor-pointer"
                             >
                                 Ir a pagar

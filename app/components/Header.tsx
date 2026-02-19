@@ -16,7 +16,7 @@ import {
     X,
 } from "lucide-react";
 import { scrollToId } from "@/utils";
-import { useAuth } from "./AuthProvider"; // <-- ajustá si tu path es otro
+import { useAuth } from "./AuthProvider";
 import api from "@/lib/api/axios";
 
 export default function Header() {
