@@ -7,23 +7,24 @@ import ConfirmModal from "@/app/components/ConfirmModal";
 import { useNotification } from "@/app/components/NotificationProvider";
 import { scrollToId } from "@/lib/api/utils/generalUtils";
 import { productService } from "@/lib/api/products";
+import { categoryService } from "@/lib/api/category";
 
 import type { Category } from "@/lib/types/category";
 import type { AdminProduct } from "@/lib/types/adminProduct";
 import type { PagedResult } from "@/lib/types/PagedResult";
 
-export default function ProductsManager({
-    initialCategories,
-    initialProductsPage,
-}: {
-    initialCategories: Category[];
-    initialProductsPage: PagedResult<AdminProduct>;
-}) {
+export default function ProductsManager() {
     const { showNotification } = useNotification();
 
-    const [categories] = useState<Category[]>(initialCategories);
+    const [categories, setCategories] = useState<Category[]>([]);
 
-    const [productsPage, setProductsPage] = useState<PagedResult<AdminProduct>>(initialProductsPage);
+    const [productsPage, setProductsPage] = useState<PagedResult<AdminProduct>>({
+        items: [],
+        page: 1,
+        pageSize: 25,
+        totalItems: 0,
+        totalPages: 1,
+    });
 
     const [loading, setLoading] = useState(false);
 
@@ -35,6 +36,18 @@ export default function ProductsManager({
 
     const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
     const [productToDelete, setProductToDelete] = useState<AdminProduct | null>(null);
+
+    const fetchCategories = useCallback(async () => {
+        try {
+            const res = await categoryService.getAll();
+            setCategories(res);
+        } catch (e: any) {
+            showNotification(
+                e?.response?.data?.error || "Error cargando categorías.",
+                "error"
+            );
+        }
+    }, [showNotification]);
 
     const fetchProducts = useCallback(
         async (nextPage: number, filters: AdminProductsFilters) => {
@@ -104,9 +117,17 @@ export default function ProductsManager({
 
             await fetchProducts(nextPage, appliedFilters);
         } catch (e: any) {
-            showNotification(e?.response?.data?.error || "No se pudo eliminar el producto.", "error");
+            showNotification(
+                e?.response?.data?.error || "No se pudo eliminar el producto.",
+                "error"
+            );
         }
     }, [productToDelete, showNotification, fetchProducts, appliedFilters, productsPage]);
+
+    useEffect(() => {
+        fetchCategories();
+        fetchProducts(1, appliedFilters);
+    }, []);
 
     useEffect(() => {
         scrollToId("adminTop");

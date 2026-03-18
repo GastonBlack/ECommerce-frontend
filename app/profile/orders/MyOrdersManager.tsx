@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { orderService } from "@/lib/api/orders";
@@ -11,17 +11,27 @@ import type { PagedResult } from "@/lib/types/PagedResult";
 
 const PAGE_SIZE = 4;
 
-export default function OrdersManager({ initialOrders }: { initialOrders: PagedResult<Order>; }) {
+export default function OrdersManager() {
     const router = useRouter();
 
-    const [orders, setOrders] = useState<PagedResult<Order>>(initialOrders);
+    const [orders, setOrders] = useState<PagedResult<Order>>({
+        items: [],
+        page: 1,
+        pageSize: PAGE_SIZE,
+        totalItems: 0,
+        totalPages: 1,
+    });
+
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(false);
 
     const loadPage = useCallback(async (p: number) => {
         setLoading(true);
         try {
-            const res = await orderService.getOrders({ page: p, pageSize: PAGE_SIZE });
+            const res = await orderService.getOrders({
+                page: p,
+                pageSize: PAGE_SIZE,
+            });
             setOrders(res);
         } finally {
             setLoading(false);
@@ -36,6 +46,10 @@ export default function OrdersManager({ initialOrders }: { initialOrders: PagedR
         } finally {
             setLoading(false);
         }
+    }, []);
+
+    useEffect(() => {
+        loadPage(1);
     }, []);
 
     return (

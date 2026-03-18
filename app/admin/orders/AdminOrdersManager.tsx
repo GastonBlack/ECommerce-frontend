@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { adminOrderService } from "@/lib/api/adminOrders";
 import AdminOrderModal from "./AdminOrderModal";
 import { canTransitionOrderStatus } from "@/lib/api/utils/orderStatus";
@@ -12,8 +12,15 @@ import type { AdminOrder } from "@/lib/types/adminOrder";
 
 const PAGE_SIZE = 8;
 
-export default function AdminOrdersManager({ initialOrders }: { initialOrders: PagedResult<AdminOrder> }) {
-    const [orders, setOrders] = useState<PagedResult<AdminOrder>>(initialOrders);
+export default function AdminOrdersManager() {
+    const [orders, setOrders] = useState<PagedResult<AdminOrder>>({
+        items: [],
+        page: 1,
+        pageSize: PAGE_SIZE,
+        totalItems: 0,
+        totalPages: 1,
+    });
+
     const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -71,6 +78,10 @@ export default function AdminOrdersManager({ initialOrders }: { initialOrders: P
         },
         [orders.items, orders.page, selectedOrder]
     );
+
+    useEffect(() => {
+        loadPage(1);
+    }, []);
 
     return (
         <div className="space-y-4">

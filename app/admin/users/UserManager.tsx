@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import UsersSection from "./UsersSection";
 import { adminUsersService } from "@/lib/api/adminUsers";
 import { useNotification } from "@/app/components/NotificationProvider";
@@ -10,14 +10,16 @@ import type { PagedResult } from "@/lib/types/PagedResult";
 
 const PAGE_SIZE = 25;
 
-export default function UsersManager({
-    initialUsers,
-}: {
-    initialUsers: PagedResult<AdminUser>;
-}) {
+export default function UsersManager() {
     const { showNotification } = useNotification();
 
-    const [usersData, setUsersData] = useState<PagedResult<AdminUser>>(initialUsers);
+    const [usersData, setUsersData] = useState<PagedResult<AdminUser>>({
+        items: [],
+        page: 1,
+        pageSize: PAGE_SIZE,
+        totalItems: 0,
+        totalPages: 1,
+    });
 
     const [search, setSearch] = useState("");
     const [includeDisabled, setIncludeDisabled] = useState(false);
@@ -130,6 +132,10 @@ export default function UsersManager({
         },
         [showNotification, usersData.page, search, includeDisabled]
     );
+
+    useEffect(() => {
+        load({ page: 1 });
+    }, []);
 
     return (
         <UsersSection

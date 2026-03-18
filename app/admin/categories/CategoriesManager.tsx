@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Search } from "lucide-react";
 import CategoriesTable from "./CategoriesTable";
 import CategoryForm from "./CategoryForm";
@@ -9,10 +9,10 @@ import type { Category } from "@/lib/types/category";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import { useNotification } from "@/app/components/NotificationProvider";
 
-export default function CategoriesManager({ initialCategories }: { initialCategories: Category[] }) {
+export default function CategoriesManager() {
     const { showNotification } = useNotification();
 
-    const [categories, setCategories] = useState<Category[]>(initialCategories);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -49,10 +49,14 @@ export default function CategoriesManager({ initialCategories }: { initialCatego
             setShowConfirmModal(false);
             showNotification("Categoría eliminada correctamente.", "success");
         } catch {
-            showNotification("Error al intentar eliminar la categoría. Verificá que no haya productos vinculados.","error");
+            showNotification("Error al intentar eliminar la categoría. Verificá que no haya productos vinculados.", "error");
             setShowConfirmModal(false);
         }
     };
+
+    useEffect(() => {
+        refreshData();
+    }, []);
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
