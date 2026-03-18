@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import type { AdminUser } from "@/lib/types/adminUser";
+import ConfirmModal from "@/app/components/ConfirmModal";
 
 function Badge({
     children,
@@ -18,21 +20,56 @@ function Badge({
                     ? "bg-red-100 text-red-700 border border-red-200"
                     : "bg-gray-100 text-gray-700 border border-gray-200";
 
-    return <span className={`text-xs px-2 py-1 rounded-xl  ${cls}`}>{children}</span>;
+    return <span className={`text-xs px-2 py-1 rounded-xl ${cls}`}>{children}</span>;
 }
+
+interface UsersTableProps {
+    users: AdminUser[];
+    busyId: number | null;
+    onDisable: (u: AdminUser) => void;
+    onEnable: (u: AdminUser) => void;
+    onRowClick: (u: AdminUser) => void;
+}
+
+type PendingAction = "disable" | "enable";
 
 export default function UsersTable({
     users,
     busyId,
     onDisable,
     onEnable,
-}: {
-    users: AdminUser[];
-    busyId: number | null;
-    onDisable: (u: AdminUser) => void;
-    onEnable: (u: AdminUser) => void;
-}) {
-    if (users.length === 0) {
+    onRowClick,
+}: UsersTableProps) {
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+    const [pendingAction, setPendingAction] = useState<PendingAction>("disable");
+
+    const openConfirm = (user: AdminUser, action: PendingAction) => {
+        setSelectedUser(user);
+        setPendingAction(action);
+        setConfirmOpen(true);
+    };
+
+    const closeConfirm = () => {
+        setConfirmOpen(false);
+        setSelectedUser(null);
+    };
+
+    const confirmAction = () => {
+        if (!selectedUser) return;
+
+        if (pendingAction === "disable") onDisable(selectedUser);
+        else onEnable(selectedUser);
+
+        closeConfirm();
+    };
+
+    const confirmMessage =
+        pendingAction === "disable"
+            ? `¿Estás seguro de que deseas deshabilitar a "${selectedUser?.fullName}"?`
+            : `¿Estás seguro de que deseas habilitar a "${selectedUser?.fullName}"?`;
+
+    if (!users || users.length === 0) {
         return <p className="text-sm text-gray-500 mt-4">No hay usuarios para mostrar.</p>;
     }
 
@@ -54,7 +91,11 @@ export default function UsersTable({
                         const busy = busyId === u.id;
 
                         return (
-                            <tr key={u.id} className="border-t border-gray-100">
+                            <tr
+                                key={u.id}
+                                className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer transition-all"
+                                onClick={() => onRowClick(u)}
+                            >
                                 <td className="px-4 py-3">
                                     <div className="font-medium">{u.fullName}</div>
                                     <div className="text-xs text-gray-500">ID: {u.id}</div>
@@ -63,19 +104,30 @@ export default function UsersTable({
                                 <td className="px-4 py-3">{u.email}</td>
 
                                 <td className="px-4 py-3">
-                                    {u.rol === "Admin" ? <Badge tone="dark">Admin</Badge> : <Badge tone="gray">User</Badge>}
+                                    {u.rol === "Admin" ? (
+                                        <Badge tone="dark">Admin</Badge>
+                                    ) : (
+                                        <Badge tone="gray">User</Badge>
+                                    )}
                                 </td>
 
                                 <td className="px-4 py-3">
-                                    {u.isDisabled ? <Badge tone="red">Deshabilitado</Badge> : <Badge tone="green">Activo</Badge>}
+                                    {u.isDisabled ? (
+                                        <Badge tone="red">Deshabilitado</Badge>
+                                    ) : (
+                                        <Badge tone="green">Activo</Badge>
+                                    )}
                                 </td>
 
-                                <td className="px-4 py-3 text-right">
+                                <td
+                                    className="px-4 py-3 text-right"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     {u.rol === "Admin" ? (
                                         <span className="text-xs text-gray-400">No editable</span>
                                     ) : u.isDisabled ? (
                                         <button
-                                            onClick={() => onEnable(u)}
+                                            onClick={() => openConfirm(u, "enable")}
                                             disabled={busy}
                                             className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
                                         >
@@ -83,7 +135,7 @@ export default function UsersTable({
                                         </button>
                                     ) : (
                                         <button
-                                            onClick={() => onDisable(u)}
+                                            onClick={() => openConfirm(u, "disable")}
                                             disabled={busy}
                                             className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
                                         >
@@ -96,6 +148,13 @@ export default function UsersTable({
                     })}
                 </tbody>
             </table>
+
+            <ConfirmModal
+                open={confirmOpen}
+                message={confirmMessage}
+                onConfirm={confirmAction}
+                onCancel={closeConfirm}
+            />
         </div>
     );
 }

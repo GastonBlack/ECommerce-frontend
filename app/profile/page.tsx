@@ -7,8 +7,8 @@ import { useEffect, useMemo, useState } from "react";
 import { UserMe } from "@/lib/types/user";
 import { userService } from "@/lib/api/user";
 import { authService } from "@/lib/api/auth";
-import { isValidPhone } from "@/utils";
-import { AuthProvider, useAuth } from "../components/AuthProvider";
+import { isValidPhone } from "@/lib/api/utils/generalUtils";
+import { useAuth } from "../components/AuthProvider";
 
 export default function HomePage() {
     const router = useRouter();
@@ -132,11 +132,14 @@ export default function HomePage() {
     };
 
     const logout = async () => {
-        authService.logout();
-        await refresh();
-        router.push("/");
+        try {
+            await authService.logout();
+        } finally {
+            await refresh();
+            router.push("/");
+        }
     };
-    
+
     if (loadingAuth) {
         return <div className="p-6 text-gray-500">Cargando perfil ...</div>;
     }
@@ -208,7 +211,6 @@ export default function HomePage() {
 
 
                             <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
-                                {/* DATOS PERSONALES */}
                                 <section className="border border-gray-200 rounded-xl p-5 sm:p-6">
                                     <h2 className="text-lg font-bold mb-4">Datos personales</h2>
 
@@ -261,7 +263,6 @@ export default function HomePage() {
                                     </div>
                                 </section>
 
-                                {/* SEGURIDAD */}
                                 <section className="border border-gray-200 rounded-xl p-5 sm:p-6">
                                     <h2 className="text-lg font-bold mb-4">Seguridad</h2>
 
@@ -316,7 +317,7 @@ export default function HomePage() {
                                 </p>
 
                                 <button
-                                    onClick={() => router.push("/orders")}
+                                    onClick={() => router.push("/profile/orders")}
                                     className="w-full sm:w-auto px-6 py-3 rounded-full bg-black text-white font-semibold hover:opacity-90 cursor-pointer"
                                 >
                                     Ver pedidos

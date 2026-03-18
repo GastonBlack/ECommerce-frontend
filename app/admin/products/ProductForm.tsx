@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { X, Upload, Plus } from "lucide-react";
 import { productService } from "@/lib/api/products";
 
-import type { Product } from "@/lib/types/product";
+import type { AdminProduct } from "@/lib/types/adminProduct";
 import type { Category } from "@/lib/types/category";
-import { useNotification } from "../../NotificationProvider";
+import { useNotification } from "@/app/components/NotificationProvider";
 
 type FormState = {
     name: string;
@@ -32,7 +32,7 @@ export default function ProductForm({
     onSaved,
     onCancel,
 }: {
-    product: Product | null;
+    product: AdminProduct | null;
     categories: Category[];
     onSaved: () => void;
     onCancel: () => void;
@@ -274,7 +274,7 @@ export default function ProductForm({
                                             actualizará automáticamente.
                                         </>
                                     ) : (
-                                        <>Subí una imagen. Se guardará automáticamente.</>
+                                        <>Subí una imagen.</>
                                     )}
                                 </div>
 

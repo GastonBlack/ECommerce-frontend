@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/api/auth";
-import { isValidName, isValidEmail } from "@/utils";
+import { isValidName, isValidEmail } from "@/lib/api/utils/generalUtils";
 import FooterContact from "../components/FooterContact";
 import { ArrowLeft, User, Mail, Lock, Check } from "lucide-react";
 
@@ -44,10 +44,9 @@ export default function RegisterPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-white text-black">
-            {/* CONTENT */}
             <main className="flex-1 px-6 py-10 flex justify-center">
+
                 <div className="w-full max-w-lg">
-                    {/* Top bar */}
                     <div className="flex items-center justify-between mb-6">
                         <button
                             onClick={() => router.push("/")}
@@ -65,13 +64,11 @@ export default function RegisterPage() {
                         </p>
                     </div>
 
-                    {/* Card */}
                     <div className="p-10 rounded-2xl bg-white shadow-[0_0_40px_rgba(0,0,0,0.06)]">
                         <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">
                             Crear cuenta
                         </h1>
 
-                        {/* FULL NAME */}
                         <div className="mb-5">
                             <div className="flex items-center border border-gray-300 rounded-xl px-3">
                                 <User className="w-5 h-5 text-black" />
@@ -86,7 +83,6 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        {/* EMAIL */}
                         <div className="mb-5">
                             <div className="flex items-center border border-gray-300 rounded-xl px-3">
                                 <Mail className="w-5 h-5 text-black" />
@@ -101,7 +97,6 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        {/* PASSWORD */}
                         <div className="mb-2">
                             <div className="flex items-center border border-gray-300 rounded-xl px-3">
                                 <Lock className="w-5 h-5 text-black" />
@@ -115,7 +110,6 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        {/* REPEAT PASSWORD */}
                         <div className="mt-2">
                             <div className="flex items-center border border-gray-300 rounded-xl px-3">
                                 <Lock className="w-5 h-5 text-black" />
@@ -129,7 +123,6 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
-                        {/* PASSWORD RULES */}
                         <div className="ml-2 my-3 mb-8 text-sm space-y-1">
                             <p className={validLength ? "text-green-600" : "text-gray-400"}>
                                 */ Por lo menos 8 caracteres
@@ -142,7 +135,6 @@ export default function RegisterPage() {
                             </p>
                         </div>
 
-                        {/* ERROR + BUTTON */}
                         <div className="flex flex-col items-center">
                             {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
@@ -155,14 +147,12 @@ export default function RegisterPage() {
                             </button>
                         </div>
 
-                        {/* Divider */}
                         <div className="flex items-center gap-4 my-6">
                             <div className="flex-1 h-px bg-gray-300" />
                             <span className="text-gray-500 text-sm">Registrarse con (not working)</span>
                             <div className="flex-1 h-px bg-gray-300" />
                         </div>
 
-                        {/* Socials (de momento) */}
                         <div className="flex justify-center gap-4">
                             <button className="w-12 h-12 flex items-center justify-center rounded-full border border-gray-300 ">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-8 cursor-pointer" viewBox="0 0 256 262">
@@ -174,9 +164,9 @@ export default function RegisterPage() {
                         </div>
                     </div>
                 </div>
+
             </main>
 
-            {/* FOOTER ABAJO */}
             <FooterContact />
         </div>
     );

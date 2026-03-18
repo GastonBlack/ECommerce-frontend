@@ -13,7 +13,7 @@ import { Product } from "@/lib/types/product";
 
 import { useRouter } from "next/navigation";
 
-import { pickRandom } from "@/utils";
+import { pickRandom } from "@/lib/api/utils/generalUtils";
 import { Circle } from "lucide-react";
 
 export default function HomePage() {
@@ -27,8 +27,11 @@ export default function HomePage() {
     useEffect(() => {
         categoryService.getAll().then(setCategories).catch(console.error);
 
-        // Lo trae automaticamente ordenado por popularidad.
-        productService.getAll("popular").then(setProducts).catch(console.error);
+        // Lo trae automáticamente ordenado por popularidad.
+        productService
+            .getAll({ page: 1, pageSize: 100, sort: "popular" })
+            .then((data) => setProducts(data.items))
+            .catch(console.error);
     }, []);
 
     // 4 Categorías random para carruseles.

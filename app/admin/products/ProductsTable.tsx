@@ -1,105 +1,110 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pencil, Trash2, Search, ChevronDown } from "lucide-react";
-import type { Product } from "@/lib/types/product";
+import Pagination from "@/app/components/Pagination";
+import { scrollToId } from "@/lib/api/utils/generalUtils";
+
 import type { Category } from "@/lib/types/category";
-import { scrollToId } from "@/utils";
+import type { AdminProduct } from "@/lib/types/adminProduct";
 
 type StockSort = "none" | "asc" | "desc";
 
+export type AdminProductsFilters = {
+    nameQuery?: string;
+    categoryId?: number; // 0 = todas
+    stockSort?: StockSort;
+};
+
+interface ProductsTableProps {
+    loading?: boolean;
+    products: AdminProduct[];
+    categories: Category[];
+
+    onEdit: (p: AdminProduct) => void;
+    onDeleteRequest: (p: AdminProduct) => void;
+
+    page: number;
+    totalPages: number;
+    onPageChange: (p: number) => void;
+    
+    onFiltersApply: (f: AdminProductsFilters) => void;
+    appliedFilters?: AdminProductsFilters;
+}
+
 export default function ProductsTable({
+    loading,
     products,
     categories,
     onEdit,
     onDeleteRequest,
-}: {
-    products: Product[];
-    categories: Category[];
-    onEdit: (p: Product) => void;
-    onDeleteRequest: (p: Product) => void;
-}) {
-    const [idQuery, setIdQuery] = useState("");
-    const [nameQuery, setNameQuery] = useState("");
-    const [categoryId, setCategoryId] = useState<number>(0); // 0 = todas
-    const [stockSort, setStockSort] = useState<StockSort>("none");
+    page,
+    totalPages,
+    onPageChange,
+    onFiltersApply,
+    appliedFilters,
+}: ProductsTableProps ) {
+    const [nameQuery, setNameQuery] = useState(appliedFilters?.nameQuery ?? "");
+    const [categoryId, setCategoryId] = useState<number>(appliedFilters?.categoryId ?? 0);
+    const [stockSort, setStockSort] = useState<StockSort>(appliedFilters?.stockSort ?? "none");
 
-    const categoryName = (id: number) =>
-        categories.find((c) => c.id === id)?.name ?? "—";
+    useEffect(() => {
+        if (!appliedFilters) return;
+        setNameQuery(appliedFilters.nameQuery ?? "");
+        setCategoryId(appliedFilters.categoryId ?? 0);
+        setStockSort(appliedFilters.stockSort ?? "none");
+    }, [appliedFilters?.nameQuery, appliedFilters?.categoryId, appliedFilters?.stockSort]);
 
-    const filteredProducts = useMemo(() => {
-        const idQ = idQuery.trim();
-        const nameQ = nameQuery.trim().toLowerCase();
+    const categoryName = (id: number) => categories.find((c) => c.id === id)?.name ?? "—";
 
-        // Filtrar.
-        let list = products.filter((p) => {
-            const matchId = !idQ || String(p.id).includes(idQ);
-            const matchName = !nameQ || p.name.toLowerCase().includes(nameQ);
-            const matchCategory = categoryId === 0 || p.categoryId === categoryId;
-            return matchId && matchName && matchCategory;
-        });
+    const hasFilters = useMemo(() => {
+        return (
+            (nameQuery?.trim()?.length ?? 0) > 0 ||
+            categoryId !== 0 ||
+            stockSort !== "none"
+        );
+    }, [nameQuery, categoryId, stockSort]);
 
-        // Ordenar por stock.
-        if (stockSort !== "none") {
-            list = [...list].sort((a, b) =>
-                stockSort === "asc" ? a.stock - b.stock : b.stock - a.stock
-            );
-        }
-
-        return list;
-    }, [products, idQuery, nameQuery, categoryId, stockSort]);
+    const applyFilters = () => {
+        onFiltersApply({ nameQuery, categoryId, stockSort });
+    };
 
     const clearFilters = () => {
-        setIdQuery("");
         setNameQuery("");
         setCategoryId(0);
         setStockSort("none");
+        onFiltersApply({ nameQuery: "", categoryId: 0, stockSort: "none" });
     };
 
-    const toggleStockSort = () => {
-        setStockSort((prev) => {
-            if (prev === "none") return "asc";
-            if (prev === "asc") return "desc";
-            return "none";
-        });
+    const toggleStockSortAndApply = () => {
+        const next: StockSort = stockSort === "none" ? "asc" : stockSort === "asc" ? "desc" : "none";
+        setStockSort(next);
+        onFiltersApply({ nameQuery, categoryId, stockSort: next });
     };
 
     return (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+
             <div className="px-5 py-4 flex items-center justify-between border-b border-gray-200">
                 <div>
                     <h2 className="font-semibold">Productos</h2>
                     <p className="text-xs text-gray-500">
-                        {filteredProducts.length} / {products.length} items
+                        Página {page} de {Math.max(totalPages, 1)}
                     </p>
                 </div>
 
-                {(idQuery.trim() ||
-                    nameQuery.trim() ||
-                    categoryId !== 0 ||
-                    stockSort !== "none") && (
-                        <button
-                            onClick={clearFilters}
-                            className="text-xs px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"
-                        >
-                            Limpiar filtros
-                        </button>
-                    )}
+                {hasFilters && (
+                    <button
+                        onClick={clearFilters}
+                        className="text-xs px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"
+                    >
+                        Limpiar filtros
+                    </button>
+                )}
             </div>
 
-            <div className="px-5 py-3 border-b border-gray-200 bg-white">
+            <div className="px-5 py-4 border-b border-gray-200 bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-
-                    <div className="relative">
-                        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input
-                            value={idQuery}
-                            onChange={(e) => setIdQuery(e.target.value)}
-                            placeholder="Buscar por ID..."
-                            inputMode="numeric"
-                            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-gray-400"
-                        />
-                    </div>
                     <div className="relative">
                         <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
@@ -122,10 +127,21 @@ export default function ProductsTable({
                             </option>
                         ))}
                     </select>
+
+                    <button
+                        onClick={() => {
+                            applyFilters();
+                        }}
+                        className="px-4 py-2 rounded-lg bg-black text-white text-sm hover:opacity-90 cursor-pointer"
+                    >
+                        Aplicar filtros
+                    </button>
                 </div>
+
+                {loading && <p className="mt-3 text-xs text-gray-500">Cargando...</p>}
             </div>
 
-            <div className="overflow-auto">
+            <div className="w-full">
                 <table className="w-full text-sm">
                     <thead className="bg-gray-50 text-gray-600">
                         <tr>
@@ -136,23 +152,14 @@ export default function ProductsTable({
 
                             <th className="text-left px-4 py-3">
                                 <button
-                                    onClick={toggleStockSort}
-                                    className="flex items-center gap-1 hover:text-black text-gray-600"
+                                    onClick={toggleStockSortAndApply}
+                                    className="flex items-center gap-1 hover:text-black text-gray-600 cursor-pointer"
                                     title="Ordenar por stock"
                                 >
                                     <span>Stock</span>
-
-                                    {stockSort === "none" && (
-                                        <ChevronDown className="w-4 h-4 opacity-40" />
-                                    )}
-
-                                    {stockSort === "desc" && (
-                                        <ChevronDown className="w-4 h-4 rotate-180" />
-                                    )}
-
-                                    {stockSort === "asc" && (
-                                        <ChevronDown className="w-4 h-4" />
-                                    )}
+                                    {stockSort === "none" && <ChevronDown className="w-4 h-4 opacity-40" />}
+                                    {stockSort === "desc" && <ChevronDown className="w-4 h-4 rotate-180" />}
+                                    {stockSort === "asc" && <ChevronDown className="w-4 h-4" />}
                                 </button>
                             </th>
 
@@ -161,7 +168,7 @@ export default function ProductsTable({
                     </thead>
 
                     <tbody>
-                        {filteredProducts.map((p) => (
+                        {products.map((p) => (
                             <tr key={p.id} className="border-t border-gray-100 hover:bg-gray-50">
                                 <td className="px-4 py-3">{p.id}</td>
 
@@ -169,11 +176,7 @@ export default function ProductsTable({
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
                                             {p.imageUrl ? (
-                                                <img
-                                                    src={p.imageUrl}
-                                                    alt={p.name}
-                                                    className="w-full h-full object-contain"
-                                                />
+                                                <img src={p.imageUrl} alt={p.name} className="w-full h-full object-contain" />
                                             ) : (
                                                 <span className="text-[10px] text-gray-400">No img</span>
                                             )}
@@ -181,9 +184,7 @@ export default function ProductsTable({
 
                                         <div className="min-w-0">
                                             <p className="font-medium truncate max-w-[320px]">{p.name}</p>
-                                            <p className="text-xs text-gray-500 truncate max-w-[320px]">
-                                                {p.description}
-                                            </p>
+                                            <p className="text-xs text-gray-500 truncate max-w-[320px]">{p.description}</p>
                                         </div>
                                     </div>
                                 </td>
@@ -196,8 +197,8 @@ export default function ProductsTable({
                                     <div className="flex items-center justify-end gap-2">
                                         <button
                                             onClick={() => {
-                                                onEdit(p)
-                                                scrollToId("adminTop")
+                                                onEdit(p);
+                                                scrollToId("adminTop");
                                             }}
                                             className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-white cursor-pointer"
                                             title="Editar"
@@ -217,16 +218,22 @@ export default function ProductsTable({
                             </tr>
                         ))}
 
-                        {filteredProducts.length === 0 && (
+                        {products.length === 0 && (
                             <tr>
                                 <td className="px-4 py-10 text-center text-gray-500" colSpan={6}>
-                                    No hay productos que coincidan con los filtros.
+                                    No hay productos con esos filtros.
                                 </td>
                             </tr>
                         )}
                     </tbody>
                 </table>
             </div>
+
+            {totalPages > 1 && (
+                <div className="px-4 pb-4 pt-4">
+                    <Pagination page={page} totalPages={totalPages} onChange={onPageChange} />
+                </div>
+            )}
         </div>
     );
 }

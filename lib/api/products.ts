@@ -1,6 +1,7 @@
 import api from "./axios";
 import type { Product } from "@/lib/types/product";
 import type { AdminProduct } from "../types/adminProduct";
+import type { PagedResult } from "../types/PagedResult";
 
 export type ProductCreateDto = {
     name: string;
@@ -14,10 +15,16 @@ export type ProductCreateDto = {
 export type ProductUpdateDto = ProductCreateDto;
 
 export const productService = {
-    async getAll(sort?: string): Promise<Product[]> { // Parametro para que pueda aceptar el filtro popular.
-        const res = await api.get("/product", {
-            params: sort ? { sort } : undefined,
-        });
+    async getAll(params?: {
+        page?: number;
+        pageSize?: number;
+        sort?: string;
+        categoryId?: number | null;
+        minPrice?: number | null;
+        maxPrice?: number | null;
+        search?: string;
+    }): Promise<PagedResult<Product>> {
+        const res = await api.get("/product", { params });
         return res.data;
     },
 
@@ -53,13 +60,16 @@ export const productService = {
     },
 
     // ======== ADMIN ======= //
-    async getAllAdmin(): Promise<AdminProduct[]> {
-        const res = await api.get("/product/admin");
+    async getAllAdmin(params?: {
+        page?: number;
+        pageSize?: number;
+        sort?: string;
+        categoryId?: number | null;
+        minPrice?: number | null;
+        maxPrice?: number | null;
+        search?: string;
+    }): Promise<PagedResult<AdminProduct>> {
+        const res = await api.get("/product/admin", { params });
         return res.data;
     },
-
-    async getByIdAdmin(id: number): Promise<AdminProduct[]> {
-        const res = await api.get(`/product/admin/${id}`);
-        return res.data;
-    }
 };

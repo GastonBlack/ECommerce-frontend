@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { productService } from "@/lib/api/products";
 import ProductModal from "./ProductModal";
 import { Product } from "@/lib/types/product";
 import { ProductFilters } from "@/lib/types/filters";
+import Pagination from "./Pagination";
+import { scrollToId } from "@/lib/api/utils/generalUtils";
 
 type Props = {
     filters?: ProductFilters;
@@ -14,74 +16,52 @@ export default function ProductsRender({ filters }: Props) {
     const [products, setProducts] = useState<Product[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
+    // Cuando cambian los filtros, vuelve a la página 1.
     useEffect(() => {
-        const sortToBackend = filters?.sort === "popular" ? "popular" : undefined;
+        setPage(1);
+    }, [filters]);
 
+    // Carga productos desde el backend (ya filtrados + ordenados + paginados).
+    useEffect(() => {
         productService
-            .getAll(sortToBackend)
-            .then(setProducts)
+            .getAll({
+                page,
+                pageSize: 25,
+                sort: filters?.sort ?? "popular",
+                categoryId: filters?.categoryId ?? null,
+                minPrice: filters?.minPrice ?? null,
+                maxPrice: filters?.maxPrice ?? null,
+                search: filters?.search ?? "",
+            })
+            .then((data) => {
+                setProducts(data.items);
+                setTotalPages(data.totalPages);
+            })
             .catch(console.error);
-    }, [filters?.sort]);
+    }, [page, filters]);
 
-    /* SECCION DE FILTROS */
-    // ===============================================
-    const filtered = useMemo(() => {
-        let list = [...products];
-
-        if (filters?.categoryId) {
-            list = list.filter((p: any) => p.categoryId === filters.categoryId);
-        }
-
-        if (filters?.minPrice != null) list = list.filter((p) => p.price >= filters.minPrice!);
-        if (filters?.maxPrice != null) list = list.filter((p) => p.price <= filters.maxPrice!);
-
-        if (filters?.search) {
-            const q = filters.search.toLowerCase();
-            list = list.filter((p) => p.name.toLowerCase().includes(q));
-        }
-
-        switch (filters?.sort) {
-            case "price-asc":
-                list.sort((a, b) => a.price - b.price);
-                break;
-            case "price-desc":
-                list.sort((a, b) => b.price - a.price);
-                break;
-            case "name-asc":
-                list.sort((a, b) => a.name.localeCompare(b.name));
-                break;
-            case "name-desc":
-                list.sort((a, b) => b.name.localeCompare(a.name));
-                break;
-            case "popular":
-                // Lo ordena el backend usando el TotalSold para que el usuario comun no pueda acceder al dato.
-                break;
-        }
-
-        return list;
-    }, [products, filters]);
-    // ===================================================================================================
+    // Cada vez que cambia de filtro/página, sube para arriba del todo.
+    useEffect(() => {
+        scrollToId("top");
+    }, [filters, page]);
 
     return (
         <section id="products" className="w-full px-3 sm:px-6 lg:px-8 mt-4 pb-4">
-
             {selectedProduct && (
-                <ProductModal
-                    product={selectedProduct}
-                    onClose={() => setSelectedProduct(null)}
-                />
+                <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
             )}
 
             {products.length === 0 ? (
                 <p className="text-gray-500">Cargando productos...</p>
             ) : (
                 <div
-                    className="grid gap-4 sm:gap-6 bg-gray-200 items-stretch"
-                    style={{
-                        gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))",
-                    }}
+                    className="grid gap-4 sm:gap-6 items-stretch"
+                    style={{ gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))" }}
                 >
-                    {filtered.map((p: Product) => (
+                    {products.map((p: Product) => (
                         <div
                             key={p.id}
                             className="
@@ -118,6 +98,8 @@ export default function ProductsRender({ filters }: Props) {
                     ))}
                 </div>
             )}
+
+            <Pagination page={page} totalPages={totalPages} onChange={(newPage) => setPage(newPage)} />
 
         </section>
     );

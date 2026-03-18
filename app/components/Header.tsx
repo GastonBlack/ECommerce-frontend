@@ -15,9 +15,9 @@ import {
     Menu,
     X,
 } from "lucide-react";
-import { scrollToId } from "@/utils";
+import { scrollToId } from "@/lib/api/utils/generalUtils";
 import { useAuth } from "./AuthProvider";
-import api from "@/lib/api/axios";
+import { authService } from "@/lib/api/auth";
 
 export default function Header() {
     const { user, loadingAuth, refresh } = useAuth();
@@ -64,7 +64,7 @@ export default function Header() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [mobileOpen]);
 
-    // Navegar o scrollear top según la ruta
+    // Navegar o scrollear top según la ruta.
     const goOrScrollTop = (path: string) => {
         if (pathname === path) {
             scrollToId("top");
@@ -80,9 +80,7 @@ export default function Header() {
 
     const logout = async () => {
         try {
-            await api.post("/auth/logout");
-        } catch (e) {
-            console.error(e);
+            await authService.logout();
         } finally {
             setMenuOpen(false);
             setMobileOpen(false);
@@ -185,7 +183,7 @@ export default function Header() {
                                         className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-100 text-left cursor-pointer"
                                         onClick={() => {
                                             setMenuOpen(false);
-                                            router.push("/orders");
+                                            router.push("/profile/orders");
                                         }}
                                     >
                                         <Package className="w-4 h-4" />

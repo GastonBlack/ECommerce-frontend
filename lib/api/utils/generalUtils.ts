@@ -40,3 +40,15 @@ export function pickRandom<T>(arr: T[], n: number) {
     }
     return copy.slice(0, n);
 }
+
+// Devuelve la fecha formateada.
+export function formatDate(dateStr: string) {
+    const d = new Date(dateStr);
+    return d.toLocaleString(undefined, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+}

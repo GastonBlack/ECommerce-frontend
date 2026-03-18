@@ -11,7 +11,6 @@ export default function CheckoutClient() {
     const sp = useSearchParams();
     const router = useRouter();
 
-    // MercadoPago manda status por back_urls:
     // /checkout?status=success | pending | failure
     const status = (sp.get("status") as MPStatus) || "pending";
     const orderId = Number(sp.get("orderId") || localStorage.getItem("lastOrderId") || 0);
@@ -20,7 +19,7 @@ export default function CheckoutClient() {
         orderId ? "Verificando..." : "Sin orderId"
     );
 
-    // Polling solo si tiene sentido (success/pending y hay orderId)
+    // Polling solo si success/pending y hay orderId.
     const shouldPoll = useMemo(() => {
         return orderId > 0 && (status === "success" || status === "pending");
     }, [orderId, status]);
@@ -78,7 +77,6 @@ export default function CheckoutClient() {
         );
     }
 
-    // Pending o success (success puede tardar igual, por webhook).
     return (
         <div className="p-8">
             <h1 className="text-2xl font-bold">
@@ -92,7 +90,7 @@ export default function CheckoutClient() {
                 </>
             ) : (
                 <p className="mt-4 text-red-600">
-                    No llegó el orderId en la URL. (Tenés que pasarlo vos)
+                    No llegó el orderId en la URL.
                 </p>
             )}
 
