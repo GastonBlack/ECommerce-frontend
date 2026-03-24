@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { adminOrderService } from "@/lib/api/adminOrders";
 import AdminOrderModal from "./AdminOrderModal";
-import { canTransitionOrderStatus } from "@/lib/api/utils/orderStatus";
+import { canTransitionOrderStatus } from "@/lib/utils/orderStatus";
 import AdminOrdersList from "./AdminOrderList";
 
 import type { OrderStatus } from "@/lib/types/orderStatuses";

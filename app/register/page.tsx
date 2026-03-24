@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/api/auth";
-import { isValidName, isValidEmail } from "@/lib/api/utils/generalUtils";
+import { isValidName, isValidEmail } from "@/lib/utils/generalUtils";
 import FooterContact from "../components/FooterContact";
 import { ArrowLeft, User, Mail, Lock, Check } from "lucide-react";
 

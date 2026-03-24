@@ -15,7 +15,7 @@ import {
     Menu,
     X,
 } from "lucide-react";
-import { scrollToId } from "@/lib/api/utils/generalUtils";
+import { scrollToId } from "@/lib/utils/generalUtils";
 import { useAuth } from "./AuthProvider";
 import { authService } from "@/lib/api/auth";
 

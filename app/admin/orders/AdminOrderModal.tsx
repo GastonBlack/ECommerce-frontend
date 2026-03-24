@@ -1,8 +1,8 @@
 "use client";
 
 import { X } from "lucide-react";
-import { formatDate } from "@/lib/api/utils/generalUtils";
-import { getNextOrderStatuses, getOrderStatusActionLabel, getOrderStatusUI, isFinalOrderStatus } from "@/lib/api/utils/orderStatus";
+import { formatDate } from "@/lib/utils/generalUtils";
+import { getNextOrderStatuses, getOrderStatusActionLabel, getOrderStatusUI, isFinalOrderStatus } from "@/lib/utils/orderStatus";
 
 import type { OrderStatus } from "@/lib/types/orderStatuses";
 import type { AdminOrder } from "@/lib/types/adminOrder";

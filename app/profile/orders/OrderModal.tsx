@@ -1,9 +1,9 @@
 "use client";
 
 import type { Order } from "@/lib/types/order";
-import { formatDate } from "@/lib/api/utils/generalUtils";
+import { formatDate } from "@/lib/utils/generalUtils";
 import { X } from "lucide-react";
-import { getOrderStatusUI } from "@/lib/api/utils/orderStatus";
+import { getOrderStatusUI } from "@/lib/utils/orderStatus";
 
 export default function OrderModal({ order, onClose }: { order: Order | null; onClose: () => void; }) {
     if (!order) return null;

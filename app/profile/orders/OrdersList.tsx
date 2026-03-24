@@ -1,9 +1,9 @@
 "use client";
 
 import type { Order } from "@/lib/types/order";
-import { formatDate } from "@/lib/api/utils/generalUtils";
+import { formatDate } from "@/lib/utils/generalUtils";
 import Pagination from "@/app/components/Pagination";
-import { getOrderStatusUI } from "@/lib/api/utils/orderStatus";
+import { getOrderStatusUI } from "@/lib/utils/orderStatus";
 import { PackageSearch } from "lucide-react";
 
 interface OrdersListProps {

@@ -2,7 +2,7 @@
 
 import { Pencil, Trash2 } from "lucide-react";
 import type { Category } from "@/lib/types/category";
-import { scrollToId } from "@/lib/api/utils/generalUtils";
+import { scrollToId } from "@/lib/utils/generalUtils";
 
 interface Props {
     categories: Category[];

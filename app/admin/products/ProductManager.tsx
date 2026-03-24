@@ -5,7 +5,7 @@ import ProductsTable, { AdminProductsFilters } from "./ProductsTable";
 import ProductForm from "./ProductForm";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import { useNotification } from "@/app/components/NotificationProvider";
-import { scrollToId } from "@/lib/api/utils/generalUtils";
+import { scrollToId } from "@/lib/utils/generalUtils";
 import { productService } from "@/lib/api/products";
 import { categoryService } from "@/lib/api/category";
 

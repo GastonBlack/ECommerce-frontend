@@ -59,7 +59,7 @@ export default function OrdersManager() {
                 onClick={() => router.back()}
             >
                 <ArrowLeft className="w-6 h-6" />
-                <p className="text-sm text-gray-400">Volver</p>
+                <p className="text-sm text-black">Volver</p>
             </button>
 
             <OrdersList

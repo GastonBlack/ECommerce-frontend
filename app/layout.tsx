@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "./components/AuthProvider";
 import { NotificationProvider } from "./components/NotificationProvider";
+import NotificationBridge from "./components/NotificationBridge";
 
 export const metadata: Metadata = {
     title: "ECommerce",
@@ -14,7 +15,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <body>
                 <AuthProvider>
                     <NotificationProvider>
+
+                        <NotificationBridge />
                         {children}
+
                     </NotificationProvider>
                 </AuthProvider>
             </body>

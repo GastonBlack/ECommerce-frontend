@@ -6,7 +6,7 @@ import ProductModal from "./ProductModal";
 import { Product } from "@/lib/types/product";
 import { ProductFilters } from "@/lib/types/filters";
 import Pagination from "./Pagination";
-import { scrollToId } from "@/lib/api/utils/generalUtils";
+import { scrollToId } from "@/lib/utils/generalUtils";
 
 type Props = {
     filters?: ProductFilters;

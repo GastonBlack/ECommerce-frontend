@@ -13,7 +13,7 @@ import { Product } from "@/lib/types/product";
 
 import { useRouter } from "next/navigation";
 
-import { pickRandom } from "@/lib/api/utils/generalUtils";
+import { pickRandom } from "@/lib/utils/generalUtils";
 import { Circle } from "lucide-react";
 
 export default function HomePage() {
@@ -61,7 +61,7 @@ export default function HomePage() {
     }, [promoCategories, products]);
 
     return (
-        <div id="top" className="min-h-screen text-black bg-gray-200">
+        <div id="top" className="min-h-screen text-black bg-gray-100">
             <Header />
 
             <section className="px-4 pt-4 mb-4">

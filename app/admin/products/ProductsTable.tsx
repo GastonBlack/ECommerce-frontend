@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Pencil, Trash2, Search, ChevronDown } from "lucide-react";
 import Pagination from "@/app/components/Pagination";
-import { scrollToId } from "@/lib/api/utils/generalUtils";
+import { scrollToId } from "@/lib/utils/generalUtils";
 
 import type { Category } from "@/lib/types/category";
 import type { AdminProduct } from "@/lib/types/adminProduct";

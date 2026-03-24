@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { UserMe } from "@/lib/types/user";
 import { userService } from "@/lib/api/user";
 import { authService } from "@/lib/api/auth";
-import { isValidPhone } from "@/lib/api/utils/generalUtils";
+import { isValidPhone } from "@/lib/utils/generalUtils";
 import { useAuth } from "../components/AuthProvider";
 
 export default function HomePage() {
@@ -313,7 +313,7 @@ export default function HomePage() {
                             <div className="mt-8 sm:mt-10 border border-gray-200 rounded-xl p-5 sm:p-6">
                                 <h2 className="text-lg font-bold mb-2">Mis pedidos</h2>
                                 <p className="text-sm text-gray-600 mb-4">
-                                    Acá podés ver el historial de pedidos. (TODO: implementar)
+                                    Acá podés ver el historial de pedidos.
                                 </p>
 
                                 <button
