@@ -112,7 +112,10 @@ export default function CartPage() {
     if (!user) return null;
 
     const goPay = async () => {
+        if (busyId === -2) return;
+
         setError("");
+
         try {
             setBusyId(-2);
 
@@ -123,6 +126,7 @@ export default function CartPage() {
                 setError("Mercado Pago no devolvió un link de pago.");
                 return;
             }
+
             localStorage.setItem("lastOrderId", String(pref.orderId));
             window.location.href = url;
         } catch (e: any) {
@@ -272,9 +276,10 @@ export default function CartPage() {
 
                             <button
                                 onClick={goPay}
-                                className="mt-6 w-full h-12 rounded-full bg-black text-white font-semibold hover:bg-gray-900 transition cursor-pointer"
+                                disabled={busyId === -2}
+                                className="mt-6 w-full h-12 rounded-full bg-black text-white font-semibold hover:bg-gray-900 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Ir a pagar
+                                {busyId === -2 ? "Redirigiendo..." : "Ir a pagar"}
                             </button>
 
                             <p className="text-xs text-gray-500 mt-3">
