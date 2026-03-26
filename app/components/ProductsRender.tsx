@@ -18,29 +18,51 @@ export default function ProductsRender({ filters }: Props) {
 
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState(true);
 
     // Cuando cambian los filtros, vuelve a la página 1.
     useEffect(() => {
         setPage(1);
     }, [filters]);
 
-    // Carga productos desde el backend (ya filtrados + ordenados + paginados).
     useEffect(() => {
-        productService
-            .getAll({
-                page,
-                pageSize: 25,
-                sort: filters?.sort ?? "popular",
-                categoryId: filters?.categoryId ?? null,
-                minPrice: filters?.minPrice ?? null,
-                maxPrice: filters?.maxPrice ?? null,
-                search: filters?.search ?? "",
-            })
-            .then((data) => {
+        let cancelled = false;
+
+        const loadProducts = async () => {
+            setLoading(true);
+
+            try {
+                const data = await productService.getAll({
+                    page,
+                    pageSize: 25,
+                    sort: filters?.sort ?? "popular",
+                    categoryId: filters?.categoryId ?? null,
+                    minPrice: filters?.minPrice ?? null,
+                    maxPrice: filters?.maxPrice ?? null,
+                    search: filters?.search ?? "",
+                });
+
+                if (cancelled) return;
+
                 setProducts(data.items);
                 setTotalPages(data.totalPages);
-            })
-            .catch(console.error);
+            } catch (error) {
+                if (cancelled) return;
+                console.error(error);
+                setProducts([]);
+                setTotalPages(1);
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadProducts();
+
+        return () => {
+            cancelled = true;
+        };
     }, [page, filters]);
 
     // Cada vez que cambia de filtro/página, sube para arriba del todo.
@@ -54,8 +76,42 @@ export default function ProductsRender({ filters }: Props) {
                 <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
             )}
 
-            {products.length === 0 ? (
-                <p className="text-gray-500">Cargando productos...</p>
+            {loading ? (
+                <div
+                    className="grid gap-4 sm:gap-6 items-stretch"
+                    style={{ gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))" }}
+                >
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="flex flex-col bg-white shadow-sm rounded-md h-full overflow-hidden"
+                        >
+                            <div className="w-full aspect-square bg-gray-200 animate-pulse" />
+
+                            <div className="flex w-full items-center justify-center">
+                                <div className="w-[60%] h-[1px] bg-black opacity-10" />
+                            </div>
+
+                            <div className="w-full px-4 py-3 flex flex-col flex-1">
+                                <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse" />
+                                <div className="mt-2 h-4 w-full bg-gray-100 rounded animate-pulse" />
+                                <div className="mt-1 h-4 w-5/6 bg-gray-100 rounded animate-pulse" />
+                                <div className="mt-auto pt-4">
+                                    <div className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : products.length === 0 ? (
+                <div className="rounded-2xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm">
+                    <p className="text-lg font-semibold text-gray-800">
+                        No se encontraron productos
+                    </p>
+                    <p className="mt-2 text-sm text-gray-500">
+                        Probá cambiando los filtros o limpiando la búsqueda.
+                    </p>
+                </div>
             ) : (
                 <div
                     className="grid gap-4 sm:gap-6 items-stretch"
@@ -73,7 +129,11 @@ export default function ProductsRender({ filters }: Props) {
                         >
                             <div className="w-full aspect-square bg-gray-50 flex items-center justify-center overflow-hidden">
                                 {p.imageUrl ? (
-                                    <img src={p.imageUrl} alt={p.name} className="w-full h-full object-contain" />
+                                    <img
+                                        src={p.imageUrl}
+                                        alt={p.name}
+                                        className="w-full h-full object-contain"
+                                    />
                                 ) : (
                                     <span className="text-gray-400 text-sm">Sin imagen</span>
                                 )}
@@ -99,7 +159,11 @@ export default function ProductsRender({ filters }: Props) {
                 </div>
             )}
 
-            <Pagination page={page} totalPages={totalPages} onChange={(newPage) => setPage(newPage)} />
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                onChange={(newPage) => setPage(newPage)}
+            />
 
         </section>
     );
