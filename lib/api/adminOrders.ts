@@ -7,8 +7,10 @@ export const adminOrderService = {
     async getOrders(params: {
         page: number;
         pageSize: number;
-        status?: OrderStatus;
+        status?: OrderStatus | "";
         search?: string;
+        dateFrom?: string;
+        dateTo?: string;
     }): Promise<PagedResult<AdminOrder>> {
         const res = await api.get("/admin/orders", { params });
         return res.data;

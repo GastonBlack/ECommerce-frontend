@@ -1,6 +1,7 @@
 "use client";
 
 import type { AdminUser } from "@/lib/types/adminUser";
+import { useRouter } from "next/navigation";
 
 function Badge({
     children,
@@ -25,15 +26,15 @@ interface UserDetailsModalProps {
     open: boolean;
     user: AdminUser | null;
     onClose: () => void;
-    onViewOrders: (u: AdminUser) => void;
 }
 
 export default function UserDetailsModal({
     open,
     user,
     onClose,
-    onViewOrders,
 }: UserDetailsModalProps) {
+    let router = useRouter();
+
     if (!open || !user) return null;
 
     return (
@@ -102,12 +103,9 @@ export default function UserDetailsModal({
 
                     <div className="pt-2 border-t border-gray-200">
                         <div className="text-sm font-semibold mb-2">Pedidos</div>
-                        <p className="text-xs text-gray-500 mb-3">
-                            Después conectamos esto al endpoint de orders para mostrar pedidos del usuario.
-                        </p>
 
                         <button
-                            onClick={() => onViewOrders(user)}
+                            onClick={() => router.push(`/admin/orders?search=${user.email}`)}
                             className="w-full px-4 py-2 rounded-lg bg-black text-white hover:opacity-90 cursor-pointer text-sm"
                         >
                             Ver pedidos
