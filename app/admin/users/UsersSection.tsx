@@ -100,9 +100,6 @@ export default function UsersSection({
                 open={!!selectedUser}
                 user={selectedUser}
                 onClose={() => setSelectedUser(null)}
-                onViewOrders={(u) => {
-                    console.log("TODO: ver pedidos userId =", u.id);
-                }}
             />
         </div>
     );
