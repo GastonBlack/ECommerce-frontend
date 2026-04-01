@@ -334,7 +334,7 @@ export default function Header() {
                                 <button
                                     onClick={() => {
                                         setMobileOpen(false);
-                                        router.push("/orders");
+                                        router.push("/profile/orders");
                                     }}
                                     className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-100 text-left"
                                 >
