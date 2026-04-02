@@ -85,7 +85,7 @@ api.interceptors.response.use(
         // Control de Rate Limiting (429) con debounce de 3 segundos para notificaciones
         if (status === 429) {
             const now = Date.now();
-            
+
             if (now - last429 > 3000) {
                 notifyGlobal("Servidor saturado. Intente de nuevo en unos momentos.", "error");
                 last429 = now;
@@ -105,3 +105,12 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+/*
+* Fuerza la limpieza del token.
+*/
+export const resetCsrf = () => {
+    csrfInitialized = false;
+    csrfToken = null;
+    csrfPromise = null;
+};
