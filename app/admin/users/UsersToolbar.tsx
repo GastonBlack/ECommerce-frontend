@@ -1,5 +1,7 @@
 "use client";
 
+import { Search } from "lucide-react";
+
 interface Props {
     query: string;
     onQueryChange: (v: string) => void;
@@ -12,28 +14,22 @@ interface Props {
 export default function UsersToolbar({
     query,
     onQueryChange,
-    onReload,
-    loading,
     showDisabled,
     onShowDisabledChange,
 }: Props) {
     return (
         <div className="flex flex-col gap-3">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-                <input
-                    value={query}
-                    onChange={(e) => onQueryChange(e.target.value)}
-                    placeholder="Buscar por nombre o email..."
-                    className="w-full sm:max-w-md border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-400"
-                />
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_auto]">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <input
+                        value={query}
+                        onChange={(e) => onQueryChange(e.target.value)}
+                        placeholder="Buscar por nombre o email..."
+                        className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-gray-400"
+                    />
+                </div>
 
-                <button
-                    onClick={onReload}
-                    disabled={loading}
-                    className="px-4 py-2 rounded-lg bg-black text-white hover:opacity-90 disabled:opacity-50 cursor-pointer text-sm"
-                >
-                    {loading ? "Cargando..." : "Recargar"}
-                </button>
             </div>
 
             <label className="flex items-center gap-2 text-sm text-gray-700 select-none">

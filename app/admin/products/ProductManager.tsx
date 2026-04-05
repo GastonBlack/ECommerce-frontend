@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import ProductsTable, { AdminProductsFilters } from "./ProductsTable";
 import ProductForm from "./ProductForm";
 import ConfirmModal from "@/app/components/ConfirmModal";
@@ -35,6 +36,7 @@ export default function ProductsManager() {
     });
 
     const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
+    const [productModalOpen, setProductModalOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState<AdminProduct | null>(null);
 
     const fetchCategories = useCallback(async () => {
@@ -124,6 +126,21 @@ export default function ProductsManager() {
         }
     }, [productToDelete, showNotification, fetchProducts, appliedFilters, productsPage]);
 
+    const openCreateModal = () => {
+        setEditingProduct(null);
+        setProductModalOpen(true);
+    };
+
+    const openEditModal = (product: AdminProduct) => {
+        setEditingProduct(product);
+        setProductModalOpen(true);
+    };
+
+    const closeProductModal = () => {
+        setProductModalOpen(false);
+        setEditingProduct(null);
+    };
+
     useEffect(() => {
         fetchCategories();
         fetchProducts(1, appliedFilters);
@@ -134,31 +151,47 @@ export default function ProductsManager() {
     }, [productsPage.page]);
 
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6" id="adminTop">
-            <div className="xl:col-span-2">
-                <ProductsTable
-                    loading={loading}
-                    products={productsPage.items}
-                    categories={categories}
-                    page={productsPage.page}
-                    totalPages={Math.max(productsPage.totalPages, 1)}
-                    onPageChange={changePage}
-                    onEdit={setEditingProduct}
-                    onDeleteRequest={setProductToDelete}
-                    onFiltersApply={applyFilters}
-                    appliedFilters={appliedFilters}
-                />
+        <div className="flex flex-col items-center justify-center gap-4" id="adminTop">
+
+            <div className="flex items-center justify-center">
+                <button
+                    onClick={openCreateModal}
+                    className="flex h-11 w-11 items-center justify-center rounded-sm bg-black text-white shadow-sm hover:opacity-90 cursor-pointer"
+                    title="Agregar producto"
+                    aria-label="Agregar producto"
+                >
+                    <Plus className="h-5 w-5" />
+                </button>
             </div>
 
+            <ProductsTable
+                loading={loading}
+                products={productsPage.items}
+                categories={categories}
+                page={productsPage.page}
+                totalPages={Math.max(productsPage.totalPages, 1)}
+                onPageChange={changePage}
+                onEdit={openEditModal}
+                onDeleteRequest={setProductToDelete}
+                onFiltersApply={applyFilters}
+                appliedFilters={appliedFilters}
+            />
+
             <ProductForm
+                open={productModalOpen}
                 product={editingProduct}
                 categories={categories}
                 onSaved={async () => {
-                    setEditingProduct(null);
+                    closeProductModal();
                     await refreshCurrent();
-                    showNotification("Producto guardado correctamente.", "success");
+                    showNotification(
+                        editingProduct
+                            ? "Producto editado correctamente."
+                            : "Producto creado correctamente.",
+                        "success"
+                    );
                 }}
-                onCancel={() => setEditingProduct(null)}
+                onCancel={closeProductModal}
             />
 
             <ConfirmModal

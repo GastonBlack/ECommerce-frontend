@@ -8,12 +8,14 @@ import { useNotification } from "@/app/components/NotificationProvider";
 import type { Category } from "@/lib/types/category";
 
 interface CategoryFormProps {
+    open: boolean;
     category: Category | null;
     onSaved: () => void;
     onCancel: () => void;
 }
 
 export default function CategoryForm({
+    open,
     category,
     onSaved,
     onCancel,
@@ -25,6 +27,8 @@ export default function CategoryForm({
     const [error, setError] = useState("");
 
     useEffect(() => {
+        if (!open) return;
+
         if (category) {
             setName(category.name);
             setError("");
@@ -32,7 +36,18 @@ export default function CategoryForm({
             setName("");
             setError("");
         }
-    }, [category]);
+    }, [category, open]);
+
+    useEffect(() => {
+        if (!open) return;
+
+        const original = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = original;
+        };
+    }, [open]);
 
     const handleSave = async () => {
         if (name.trim().length < 2) {
@@ -51,6 +66,7 @@ export default function CategoryForm({
                 await categoryService.create({ name: name.trim() });
                 showNotification("Categoría agregada correctamente.", "success");
             }
+
             onSaved();
             setName("");
         } catch (e: any) {
@@ -58,60 +74,87 @@ export default function CategoryForm({
             setError(msg);
         } finally {
             setSaving(false);
-
         }
     };
 
+    const close = () => {
+        if (saving) return;
+        onCancel();
+    };
+
+    if (!open) return null;
+
     return (
-        <div className="bg-white rounded-xl border-2 border-gray-100 shadow-sm p-6 sticky top-6">
-            <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold text-lg">
-                    {category ? "Editar" : "Nueva"} Categoría
-                </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+                className="absolute inset-0 bg-black/40"
+                onClick={close}
+            />
 
-                {category && (
-                    <button
-                        onClick={onCancel}
-                        className="p-1 hover:bg-gray-100 rounded-full cursor-pointer"
-                    >
-                        <X className="w-5 h-5 text-gray-400" />
-                    </button>
-                )}
-            </div>
-
-            <div className="space-y-4">
-                {error && (
-                    <div className="p-3 text-xs bg-red-50 text-red-600 rounded-lg border border-red-100">
-                        {error}
+            <div className="relative z-10 w-full max-w-lg rounded-2xl border border-gray-200 bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+                    <div>
+                        <h3 className="text-lg font-semibold">
+                            {category ? "Editar categoría" : "Nueva categoría"}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                            {category
+                                ? "Modificá el nombre de la categoría."
+                                : "Completá los datos para crear una categoría."}
+                        </p>
                     </div>
-                )}
 
-                <div>
-                    <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">
-                        Nombre
-                    </label>
-                    <input
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 outline-none focus:bg-white focus:border-black transition-all"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Ej: Calzado Deportivo"
-                    />
+                    <button
+                        onClick={close}
+                        className="p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                    >
+                        <X className="w-5 h-5 text-gray-500" />
+                    </button>
                 </div>
 
-                <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 disabled:opacity-50 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                    {saving ? (
-                        "Procesando..."
-                    ) : (
-                        <>
-                            <Save className="w-4 h-4" />
-                            {category ? "Actualizar" : "Crear"}
-                        </>
+                <div className="p-5 space-y-4">
+                    {error && (
+                        <div className="p-3 text-xs bg-red-50 text-red-600 rounded-lg border border-red-100">
+                            {error}
+                        </div>
                     )}
-                </button>
+
+                    <div>
+                        <label className="mb-1 block text-xs font-semibold text-gray-600">
+                            Nombre
+                        </label>
+                        <input
+                            className="w-full rounded-lg border border-gray-200 px-4 py-2.5 outline-none focus:border-black transition-all"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Ej: Calzado Deportivo"
+                        />
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-5 py-4">
+                    <button
+                        onClick={close}
+                        className="rounded-lg border border-gray-200 px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="rounded-lg bg-black px-4 py-2 text-sm text-white hover:bg-gray-800 disabled:opacity-50 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        {saving ? (
+                            "Procesando..."
+                        ) : (
+                            <>
+                                <Save className="w-4 h-4" />
+                                {category ? "Actualizar" : "Crear"}
+                            </>
+                        )}
+                    </button>
+                </div>
             </div>
         </div>
     );

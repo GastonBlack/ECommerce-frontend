@@ -133,6 +133,7 @@ export default function ProductModal({
                                     onClick={async () => {
                                         try {
                                             await cartService.add(product.id, 1);
+                                            window.dispatchEvent(new Event("cart-updated")); // Para actualizar el puntito rojo del carrito.
                                         } catch (err: any) {
                                             if (err.response?.status === 401) {
                                                 router.push("/login");

@@ -55,39 +55,43 @@ export default function UsersSection({
     };
 
     return (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <div className="mb-4">
+        <div className="w-full rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            <div className="border-b border-gray-200 px-4 py-4 md:px-5">
                 <h2 className="text-lg font-semibold">Usuarios</h2>
                 <p className="text-xs text-gray-500">
                     Página {page} de {Math.max(totalPages, 1)}
                 </p>
             </div>
 
-            <UsersToolbar
-                query={search}
-                onQueryChange={onSearchChange}
-                onReload={onReload}
-                loading={loading}
-                showDisabled={includeDisabled}
-                onShowDisabledChange={onIncludeDisabledChange}
-            />
+            <div className="border-b border-gray-200 px-4 py-4 md:px-5">
+                <UsersToolbar
+                    query={search}
+                    onQueryChange={onSearchChange}
+                    onReload={onReload}
+                    loading={loading}
+                    showDisabled={includeDisabled}
+                    onShowDisabledChange={onIncludeDisabledChange}
+                />
 
-            {error && (
-                <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                    {error}
-                </div>
-            )}
+                {error && (
+                    <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                        {error}
+                    </div>
+                )}
+            </div>
 
-            <UsersTable
-                users={users}
-                busyId={busyId}
-                onDisable={(u) => wrap(u.id, () => onDisable(u))}
-                onEnable={(u) => wrap(u.id, () => onEnable(u))}
-                onRowClick={(u) => setSelectedUser(u)}
-            />
+            <div className="px-3 py-3 md:px-0 md:py-0">
+                <UsersTable
+                    users={users}
+                    busyId={busyId}
+                    onDisable={(u) => wrap(u.id, () => onDisable(u))}
+                    onEnable={(u) => wrap(u.id, () => onEnable(u))}
+                    onRowClick={(u) => setSelectedUser(u)}
+                />
+            </div>
 
             {totalPages > 1 && (
-                <div className="mt-4">
+                <div className="px-4 pb-4 pt-4">
                     <Pagination
                         page={page}
                         totalPages={totalPages}

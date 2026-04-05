@@ -120,13 +120,25 @@ export default function ProductsRender({ filters }: Props) {
                     {products.map((p: Product) => (
                         <div
                             key={p.id}
-                            className="
+                            className={`
+                                relative
                                 flex flex-col cursor-pointer bg-white shadow-sm rounded-md
                                 hover:shadow-md hover:shadow-2xl hover:scale-[1.01] transition
                                 h-full overflow-hidden
-                            "
+                                lg:max-w-70
+                                ${p.stock === 0 ? "opacity-60" : ""}
+                            `}
                             onClick={() => setSelectedProduct(p)}
                         >
+
+                            {p.stock === 0 && (
+                                <div className="absolute top-2 left-2 z-20">
+                                    <span className="bg-black text-white text-xs px-2 py-1 rounded-md shadow">
+                                        Sin stock
+                                    </span>
+                                </div>
+                            )}
+
                             <div className="w-full aspect-square bg-gray-50 flex items-center justify-center overflow-hidden">
                                 {p.imageUrl ? (
                                     <img

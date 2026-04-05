@@ -53,14 +53,18 @@ export default function OrdersManager() {
     }, []);
 
     return (
-        <div className="flex items-start justify-center pt-12">
-            <button
-                className="flex items-center mr-4 cursor-pointer hover:scale-[1.02] transition-all duration-150"
-                onClick={() => router.back()}
-            >
-                <ArrowLeft className="w-6 h-6" />
-                <p className="text-sm text-black">Volver</p>
-            </button>
+        <div className="min-h-screen flex flex-col items-center pt-4 bg-gray-200">
+
+            <div className="w-full flex items-center justify-center">
+                <button
+                    className="flex items-center my-2 cursor-pointer hover:scale-[1.02] transition-all duration-150"
+                    onClick={() => router.back()}
+                >
+                    <ArrowLeft className="w-6 h-6" />
+                    <p className="text-md text-black underline">Volver</p>
+                </button>
+            </div>
+
 
             <OrdersList
                 orders={orders.items}
@@ -69,6 +73,7 @@ export default function OrdersManager() {
                 onPageChange={loadPage}
                 onView={onView}
             />
+
 
             <OrderModal
                 order={selectedOrder}

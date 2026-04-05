@@ -20,7 +20,11 @@ function Badge({
                     ? "bg-red-100 text-red-700 border border-red-200"
                     : "bg-gray-100 text-gray-700 border border-gray-200";
 
-    return <span className={`text-xs px-2 py-1 rounded-xl ${cls}`}>{children}</span>;
+    return (
+        <span className={`rounded-xl px-2 py-1 text-xs ${cls}`}>
+            {children}
+        </span>
+    );
 }
 
 interface UsersTableProps {
@@ -70,84 +74,160 @@ export default function UsersTable({
             : `¿Estás seguro de que deseas habilitar a "${selectedUser?.fullName}"?`;
 
     if (!users || users.length === 0) {
-        return <p className="text-sm text-gray-500 mt-4">No hay usuarios para mostrar.</p>;
+        return (
+            <p className="mt-2 text-sm text-gray-500 md:px-5 md:py-4">
+                No hay usuarios para mostrar.
+            </p>
+        );
     }
 
     return (
-        <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-            <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-gray-700">
-                    <tr>
-                        <th className="text-left px-4 py-3 font-semibold">Usuario</th>
-                        <th className="text-left px-4 py-3 font-semibold">Email</th>
-                        <th className="text-left px-4 py-3 font-semibold">Rol</th>
-                        <th className="text-left px-4 py-3 font-semibold">Estado</th>
-                        <th className="text-right px-4 py-3 font-semibold">Acciones</th>
-                    </tr>
-                </thead>
+        <>
+            <div className="md:hidden space-y-3">
+                {users.map((u) => {
+                    const busy = busyId === u.id;
 
-                <tbody>
-                    {users.map((u) => {
-                        const busy = busyId === u.id;
-
-                        return (
-                            <tr
-                                key={u.id}
-                                className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer transition-all"
+                    return (
+                        <div
+                            key={u.id}
+                            className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
+                        >
+                            <button
                                 onClick={() => onRowClick(u)}
+                                className="w-full text-left cursor-pointer"
                             >
-                                <td className="px-4 py-3">
-                                    <div className="font-medium">{u.fullName}</div>
-                                    <div className="text-xs text-gray-500">ID: {u.id}</div>
-                                </td>
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <p className="font-semibold text-sm break-words">
+                                            {u.fullName}
+                                        </p>
+                                        <p className="mt-1 text-xs text-gray-500 break-all">
+                                            {u.email}
+                                        </p>
+                                        <p className="mt-1 text-xs text-gray-400">
+                                            ID: {u.id}
+                                        </p>
+                                    </div>
 
-                                <td className="px-4 py-3">{u.email}</td>
+                                    <div className="flex flex-col items-end gap-2 shrink-0">
+                                        {u.rol === "Admin" ? (
+                                            <Badge tone="dark">Admin</Badge>
+                                        ) : (
+                                            <Badge tone="gray">User</Badge>
+                                        )}
 
-                                <td className="px-4 py-3">
-                                    {u.rol === "Admin" ? (
-                                        <Badge tone="dark">Admin</Badge>
-                                    ) : (
-                                        <Badge tone="gray">User</Badge>
-                                    )}
-                                </td>
+                                        {u.isDisabled ? (
+                                            <Badge tone="red">Deshabilitado</Badge>
+                                        ) : (
+                                            <Badge tone="green">Activo</Badge>
+                                        )}
+                                    </div>
+                                </div>
+                            </button>
 
-                                <td className="px-4 py-3">
-                                    {u.isDisabled ? (
-                                        <Badge tone="red">Deshabilitado</Badge>
-                                    ) : (
-                                        <Badge tone="green">Activo</Badge>
-                                    )}
-                                </td>
+                            <div className="mt-4 flex items-center justify-end gap-2">
+                                {u.rol === "Admin" ? (
+                                    <span className="text-xs text-gray-400">No editable</span>
+                                ) : u.isDisabled ? (
+                                    <button
+                                        onClick={() => openConfirm(u, "enable")}
+                                        disabled={busy}
+                                        className="rounded-lg border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+                                    >
+                                        {busy ? "..." : "Habilitar"}
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => openConfirm(u, "disable")}
+                                        disabled={busy}
+                                        className="rounded-lg border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+                                    >
+                                        {busy ? "..." : "Deshabilitar"}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
 
-                                <td
-                                    className="px-4 py-3 text-right"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    {u.rol === "Admin" ? (
-                                        <span className="text-xs text-gray-400">No editable</span>
-                                    ) : u.isDisabled ? (
-                                        <button
-                                            onClick={() => openConfirm(u, "enable")}
-                                            disabled={busy}
-                                            className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
-                                        >
-                                            {busy ? "..." : "Habilitar"}
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => openConfirm(u, "disable")}
-                                            disabled={busy}
-                                            className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
-                                        >
-                                            {busy ? "..." : "Deshabilitar"}
-                                        </button>
-                                    )}
-                                </td>
+            <div className="hidden md:block overflow-hidden rounded-b-xl">
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[760px] text-sm">
+                        <thead className="bg-gray-50 text-gray-700">
+                            <tr>
+                                <th className="px-4 py-3 text-left font-semibold">Usuario</th>
+                                <th className="px-4 py-3 text-left font-semibold">Email</th>
+                                <th className="px-4 py-3 text-left font-semibold">Rol</th>
+                                <th className="px-4 py-3 text-left font-semibold">Estado</th>
+                                <th className="px-4 py-3 text-right font-semibold">Acciones</th>
                             </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+                        </thead>
+
+                        <tbody>
+                            {users.map((u) => {
+                                const busy = busyId === u.id;
+
+                                return (
+                                    <tr
+                                        key={u.id}
+                                        className="cursor-pointer border-t border-gray-100 transition-all hover:bg-gray-50"
+                                        onClick={() => onRowClick(u)}
+                                    >
+                                        <td className="px-4 py-3">
+                                            <div className="font-medium">{u.fullName}</div>
+                                            <div className="text-xs text-gray-500">ID: {u.id}</div>
+                                        </td>
+
+                                        <td className="px-4 py-3">{u.email}</td>
+
+                                        <td className="px-4 py-3">
+                                            {u.rol === "Admin" ? (
+                                                <Badge tone="dark">Admin</Badge>
+                                            ) : (
+                                                <Badge tone="gray">User</Badge>
+                                            )}
+                                        </td>
+
+                                        <td className="px-4 py-3">
+                                            {u.isDisabled ? (
+                                                <Badge tone="red">Deshabilitado</Badge>
+                                            ) : (
+                                                <Badge tone="green">Activo</Badge>
+                                            )}
+                                        </td>
+
+                                        <td
+                                            className="px-4 py-3 text-right"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            {u.rol === "Admin" ? (
+                                                <span className="text-xs text-gray-400">No editable</span>
+                                            ) : u.isDisabled ? (
+                                                <button
+                                                    onClick={() => openConfirm(u, "enable")}
+                                                    disabled={busy}
+                                                    className="rounded-lg border border-gray-300 px-3 py-2 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+                                                >
+                                                    {busy ? "..." : "Habilitar"}
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => openConfirm(u, "disable")}
+                                                    disabled={busy}
+                                                    className="rounded-lg border border-gray-300 px-3 py-2 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+                                                >
+                                                    {busy ? "..." : "Deshabilitar"}
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
             <ConfirmModal
                 open={confirmOpen}
@@ -155,6 +235,6 @@ export default function UsersTable({
                 onConfirm={confirmAction}
                 onCancel={closeConfirm}
             />
-        </div>
+        </>
     );
 }

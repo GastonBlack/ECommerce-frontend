@@ -34,7 +34,10 @@ export default function OrderModal({ order, onClose }: { order: Order | null; on
                 </div>
 
                 <div className="px-6 py-5 space-y-6 overflow-y-auto">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="
+                        grid grid-cols-1 gap-4
+                        md:grid-cols-3
+                    ">
                         <div className="rounded-xl border border-gray-200 p-4 text-center">
                             <p className="text-xs text-gray-500 mb-1">Fecha</p>
                             <p className="font-medium">{formatDate(order.createdAt)}</p>

@@ -12,7 +12,7 @@ type StockSort = "none" | "asc" | "desc";
 
 export type AdminProductsFilters = {
     nameQuery?: string;
-    categoryId?: number; // 0 = todas
+    categoryId?: number;
     stockSort?: StockSort;
 };
 
@@ -43,7 +43,7 @@ export default function ProductsTable({
     onPageChange,
     onFiltersApply,
     appliedFilters,
-}: ProductsTableProps ) {
+}: ProductsTableProps) {
     const [nameQuery, setNameQuery] = useState(appliedFilters?.nameQuery ?? "");
     const [categoryId, setCategoryId] = useState<number>(appliedFilters?.categoryId ?? 0);
     const [stockSort, setStockSort] = useState<StockSort>(appliedFilters?.stockSort ?? "none");
@@ -77,15 +77,16 @@ export default function ProductsTable({
     };
 
     const toggleStockSortAndApply = () => {
-        const next: StockSort = stockSort === "none" ? "asc" : stockSort === "asc" ? "desc" : "none";
+        const next: StockSort =
+            stockSort === "none" ? "asc" : stockSort === "asc" ? "desc" : "none";
+
         setStockSort(next);
         onFiltersApply({ nameQuery, categoryId, stockSort: next });
     };
 
     return (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-
-            <div className="px-5 py-4 flex items-center justify-between border-b border-gray-200">
+        <div className="flex flex-col w-full bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="px-4 md:px-5 py-4 flex items-center justify-between border-b border-gray-200 gap-3">
                 <div>
                     <h2 className="font-semibold">Productos</h2>
                     <p className="text-xs text-gray-500">
@@ -103,8 +104,8 @@ export default function ProductsTable({
                 )}
             </div>
 
-            <div className="px-5 py-4 border-b border-gray-200 bg-white">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="px-4 md:px-5 py-4 border-b border-gray-200 bg-white">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                     <div className="relative">
                         <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
@@ -129,9 +130,7 @@ export default function ProductsTable({
                     </select>
 
                     <button
-                        onClick={() => {
-                            applyFilters();
-                        }}
+                        onClick={applyFilters}
                         className="px-4 py-2 rounded-lg bg-black text-white text-sm hover:opacity-90 cursor-pointer"
                     >
                         Aplicar filtros
@@ -141,15 +140,90 @@ export default function ProductsTable({
                 {loading && <p className="mt-3 text-xs text-gray-500">Cargando...</p>}
             </div>
 
-            <div className="w-full">
-                <table className="w-full text-sm">
+            <div className="md:hidden p-3 space-y-3">
+                {products.length === 0 && (
+                    <div className="py-8 text-center text-gray-500 text-sm">
+                        No hay productos con esos filtros.
+                    </div>
+                )}
+
+                {products.map((p) => (
+                    <div
+                        key={p.id}
+                        className="rounded-xl border border-gray-200 p-3 shadow-sm"
+                    >
+                        <div className="flex items-start gap-3">
+                            <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center shrink-0">
+                                {p.imageUrl ? (
+                                    <img
+                                        src={p.imageUrl}
+                                        alt={p.name}
+                                        className="w-full h-full object-contain"
+                                    />
+                                ) : (
+                                    <span className="text-[10px] text-gray-400">No img</span>
+                                )}
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                                <p className="font-semibold text-sm break-words">{p.name}</p>
+                                <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                                    {p.description}
+                                </p>
+
+                                <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                                    <div>
+                                        <span className="text-gray-400">ID:</span>{" "}
+                                        <span className="font-medium">{p.id}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400">Stock:</span>{" "}
+                                        <span className="font-medium">{p.stock}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400">Precio:</span>{" "}
+                                        <span className="font-medium">U$S {p.price}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400">Categoría:</span>{" "}
+                                        <span className="font-medium">{categoryName(p.categoryId)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 flex items-center justify-end gap-2">
+                            <button
+                                onClick={() => {
+                                    onEdit(p);
+                                    scrollToId("adminTop");
+                                }}
+                                className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-white cursor-pointer"
+                                title="Editar"
+                            >
+                                <Pencil className="w-4 h-4" />
+                            </button>
+
+                            <button
+                                onClick={() => onDeleteRequest(p)}
+                                className="px-3 py-2 rounded-lg border border-gray-200 hover:bg-white cursor-pointer text-red-600"
+                                title="Eliminar"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm min-w-[760px]">
                     <thead className="bg-gray-50 text-gray-600">
                         <tr>
                             <th className="text-left px-4 py-3 w-[70px]">Id</th>
                             <th className="text-left px-4 py-3">Producto</th>
                             <th className="text-left px-4 py-3">Categoría</th>
                             <th className="text-left px-4 py-3">Precio</th>
-
                             <th className="text-left px-4 py-3">
                                 <button
                                     onClick={toggleStockSortAndApply}
@@ -157,12 +231,17 @@ export default function ProductsTable({
                                     title="Ordenar por stock"
                                 >
                                     <span>Stock</span>
-                                    {stockSort === "none" && <ChevronDown className="w-4 h-4 opacity-40" />}
-                                    {stockSort === "desc" && <ChevronDown className="w-4 h-4 rotate-180" />}
-                                    {stockSort === "asc" && <ChevronDown className="w-4 h-4" />}
+                                    {stockSort === "none" && (
+                                        <ChevronDown className="w-4 h-4 opacity-40" />
+                                    )}
+                                    {stockSort === "desc" && (
+                                        <ChevronDown className="w-4 h-4 rotate-180" />
+                                    )}
+                                    {stockSort === "asc" && (
+                                        <ChevronDown className="w-4 h-4" />
+                                    )}
                                 </button>
                             </th>
-
                             <th className="text-right px-4 py-3">Acciones</th>
                         </tr>
                     </thead>
@@ -176,15 +255,23 @@ export default function ProductsTable({
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
                                             {p.imageUrl ? (
-                                                <img src={p.imageUrl} alt={p.name} className="w-full h-full object-contain" />
+                                                <img
+                                                    src={p.imageUrl}
+                                                    alt={p.name}
+                                                    className="w-full h-full object-contain"
+                                                />
                                             ) : (
                                                 <span className="text-[10px] text-gray-400">No img</span>
                                             )}
                                         </div>
 
                                         <div className="min-w-0">
-                                            <p className="font-medium truncate max-w-[320px]">{p.name}</p>
-                                            <p className="text-xs text-gray-500 truncate max-w-[320px]">{p.description}</p>
+                                            <p className="font-medium truncate max-w-[320px]">
+                                                {p.name}
+                                            </p>
+                                            <p className="text-xs text-gray-500 truncate max-w-[320px]">
+                                                {p.description}
+                                            </p>
                                         </div>
                                     </div>
                                 </td>
