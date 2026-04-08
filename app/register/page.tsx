@@ -44,9 +44,14 @@ export default function RegisterPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-white text-black">
-            <main className="flex-1 px-6 py-10 flex justify-center">
-
-                <div className="w-full max-w-lg">
+            <main className="flex-1 px-2 py-10 flex justify-center md:px-6">
+                <div className="
+                        w-full max-w-[90%]
+                        sm:max-w-[70%]
+                        md:max-w-[65%]
+                        lg:max-w-[50%]
+                        xl:max-w-[30%]
+                    ">
                     <div className="flex items-center justify-between mb-6">
                         <button
                             onClick={() => router.push("/")}
@@ -64,7 +69,7 @@ export default function RegisterPage() {
                         </p>
                     </div>
 
-                    <div className="p-10 rounded-2xl bg-white shadow-[0_0_40px_rgba(0,0,0,0.06)]">
+                    <div className="p-5 rounded-2xl bg-white shadow-[0_0_40px_rgba(0,0,0,0.06)] md:p-10">
                         <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">
                             Crear cuenta
                         </h1>
