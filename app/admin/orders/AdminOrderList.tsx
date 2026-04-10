@@ -59,12 +59,13 @@ export default function AdminOrdersList({
                         onChange={(e) => set({ status: e.target.value as AdminOrderFilters["status"] })}
                     >
                         <option value="">Todos los estados</option>
-                        <option value={ORDER_STATUSES.PENDING}>Pendiente</option>
+                        <option value={ORDER_STATUSES.AWAITING_PAYMENT}>Esperando pago</option>
                         <option value={ORDER_STATUSES.PAID}>Pagado</option>
                         <option value={ORDER_STATUSES.PREPARING}>En preparación</option>
                         <option value={ORDER_STATUSES.SHIPPED}>Enviado</option>
                         <option value={ORDER_STATUSES.DELIVERED}>Entregado</option>
                         <option value={ORDER_STATUSES.CANCELLED}>Cancelado</option>
+                        <option value={ORDER_STATUSES.EXPIRED}>Expirado</option>
                     </select>
 
                     <input

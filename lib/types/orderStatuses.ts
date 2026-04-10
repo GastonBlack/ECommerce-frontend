@@ -1,10 +1,11 @@
 export const ORDER_STATUSES = {
-    PENDING: "Pending",
+    AWAITING_PAYMENT: "AwaitingPayment",
     PAID: "Paid",
     PREPARING: "Preparing",
     SHIPPED: "Shipped",
     DELIVERED: "Delivered",
     CANCELLED: "Cancelled",
+    EXPIRED: "Expired",
 } as const;
 
 export type OrderStatus =

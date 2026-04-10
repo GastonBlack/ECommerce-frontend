@@ -4,8 +4,8 @@ export function normalizeOrderStatus(status?: string): OrderStatus | null {
     const s = (status ?? "").trim().toLowerCase();
 
     switch (s) {
-        case "pending":
-            return ORDER_STATUSES.PENDING;
+        case "awaitingpayment":
+            return ORDER_STATUSES.AWAITING_PAYMENT;
         case "paid":
             return ORDER_STATUSES.PAID;
         case "preparing":
@@ -16,6 +16,8 @@ export function normalizeOrderStatus(status?: string): OrderStatus | null {
             return ORDER_STATUSES.DELIVERED;
         case "cancelled":
             return ORDER_STATUSES.CANCELLED;
+        case "expired":
+            return ORDER_STATUSES.EXPIRED;
         default:
             return null;
     }
@@ -31,8 +33,11 @@ export function canTransitionOrderStatus(
     if (!current || !next) return false;
 
     switch (current) {
-        case ORDER_STATUSES.PENDING:
-            return next === ORDER_STATUSES.CANCELLED;
+        case ORDER_STATUSES.AWAITING_PAYMENT:
+            return (
+                next === ORDER_STATUSES.CANCELLED ||
+                next === ORDER_STATUSES.EXPIRED
+            );
 
         case ORDER_STATUSES.PAID:
             return (
@@ -51,6 +56,7 @@ export function canTransitionOrderStatus(
 
         case ORDER_STATUSES.DELIVERED:
         case ORDER_STATUSES.CANCELLED:
+        case ORDER_STATUSES.EXPIRED:
             return false;
 
         default:
@@ -64,8 +70,8 @@ export function getNextOrderStatuses(status?: string): OrderStatus[] {
     if (!current) return [];
 
     switch (current) {
-        case ORDER_STATUSES.PENDING:
-            return [ORDER_STATUSES.CANCELLED];
+        case ORDER_STATUSES.AWAITING_PAYMENT:
+            return [ORDER_STATUSES.CANCELLED, ORDER_STATUSES.EXPIRED];
 
         case ORDER_STATUSES.PAID:
             return [ORDER_STATUSES.PREPARING, ORDER_STATUSES.CANCELLED];
@@ -78,6 +84,7 @@ export function getNextOrderStatuses(status?: string): OrderStatus[] {
 
         case ORDER_STATUSES.DELIVERED:
         case ORDER_STATUSES.CANCELLED:
+        case ORDER_STATUSES.EXPIRED:
             return [];
 
         default:
@@ -89,6 +96,13 @@ export function getOrderStatusUI(status?: string) {
     const normalized = normalizeOrderStatus(status);
 
     switch (normalized) {
+        case ORDER_STATUSES.AWAITING_PAYMENT:
+            return {
+                value: ORDER_STATUSES.AWAITING_PAYMENT,
+                label: "Esperando pago",
+                badge: "bg-orange-50 text-orange-700 border-orange-200",
+            };
+
         case ORDER_STATUSES.PAID:
             return {
                 value: ORDER_STATUSES.PAID,
@@ -124,11 +138,17 @@ export function getOrderStatusUI(status?: string) {
                 badge: "bg-red-50 text-red-700 border-red-200",
             };
 
-        case ORDER_STATUSES.PENDING:
+        case ORDER_STATUSES.EXPIRED:
+            return {
+                value: ORDER_STATUSES.EXPIRED,
+                label: "Expirado",
+                badge: "bg-gray-100 text-gray-700 border-gray-300",
+            };
+
         default:
             return {
-                value: ORDER_STATUSES.PENDING,
-                label: "Pendiente",
+                value: ORDER_STATUSES.AWAITING_PAYMENT,
+                label: "Esperando pago",
                 badge: "bg-orange-50 text-orange-700 border-orange-200",
             };
     }
@@ -138,6 +158,8 @@ export function getOrderStatusActionLabel(status: OrderStatus): string {
     switch (status) {
         case ORDER_STATUSES.CANCELLED:
             return "Cancelar pedido";
+        case ORDER_STATUSES.EXPIRED:
+            return "Marcar como expirado";
         case ORDER_STATUSES.PREPARING:
             return "Pasar a preparación";
         case ORDER_STATUSES.SHIPPED:
@@ -146,9 +168,9 @@ export function getOrderStatusActionLabel(status: OrderStatus): string {
             return "Marcar como entregado";
         case ORDER_STATUSES.PAID:
             return "Marcar como pagado";
-        case ORDER_STATUSES.PENDING:
+        case ORDER_STATUSES.AWAITING_PAYMENT:
         default:
-            return "Marcar como pendiente";
+            return "Marcar como esperando pago";
     }
 }
 
@@ -157,6 +179,7 @@ export function isFinalOrderStatus(status?: string): boolean {
 
     return (
         normalized === ORDER_STATUSES.DELIVERED ||
-        normalized === ORDER_STATUSES.CANCELLED
+        normalized === ORDER_STATUSES.CANCELLED ||
+        normalized === ORDER_STATUSES.EXPIRED
     );
 }

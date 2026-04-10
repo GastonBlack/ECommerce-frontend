@@ -27,7 +27,7 @@ interface ProductsTableProps {
     page: number;
     totalPages: number;
     onPageChange: (p: number) => void;
-    
+
     onFiltersApply: (f: AdminProductsFilters) => void;
     appliedFilters?: AdminProductsFilters;
 }
@@ -181,6 +181,14 @@ export default function ProductsTable({
                                         <span className="font-medium">{p.stock}</span>
                                     </div>
                                     <div>
+                                        <span className="text-gray-400">Stock reservado:</span>{" "}
+                                        <span className="font-medium">{p.reservedStock}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400">Total vendido:</span>{" "}
+                                        <span className="font-medium">{p.totalSold}</span>
+                                    </div>
+                                    <div>
                                         <span className="text-gray-400">Precio:</span>{" "}
                                         <span className="font-medium">U$S {p.price}</span>
                                     </div>
@@ -242,6 +250,8 @@ export default function ProductsTable({
                                     )}
                                 </button>
                             </th>
+                            <th className="text-left px-4 py-3">Stock reservado</th>
+                            <th className="text-left px-4 py-3">Vendidos</th>
                             <th className="text-right px-4 py-3">Acciones</th>
                         </tr>
                     </thead>
@@ -279,6 +289,8 @@ export default function ProductsTable({
                                 <td className="px-4 py-3">{categoryName(p.categoryId)}</td>
                                 <td className="px-4 py-3">U$S {p.price}</td>
                                 <td className="px-4 py-3">{p.stock}</td>
+                                <td className="px-4 py-3">{p.reservedStock}</td>
+                                <td className="px-4 py-3">{p.totalSold}</td>
 
                                 <td className="px-4 py-3">
                                     <div className="flex items-center justify-end gap-2">

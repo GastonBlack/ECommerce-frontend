@@ -4,6 +4,7 @@ export type AdminProduct = {
     description: string;
     price: number;
     stock: number;
+    reservedStock: number;
     totalSold: number;
     imageUrl: string | null;
     categoryId: number;

@@ -8,9 +8,11 @@ import { cartService } from "@/lib/api/cart";
 import { CartItem } from "@/lib/types/cartItem";
 import { useAuth } from "../components/AuthProvider";
 import { paymentsService } from "@/lib/api/payment";
+import { useNotification } from "../components/NotificationProvider";
 
 export default function CartPage() {
     const router = useRouter();
+    const { showNotification } = useNotification();
     const { user, loadingAuth, refresh } = useAuth();
 
     const [items, setItems] = useState<CartItem[]>([]);
@@ -56,8 +58,11 @@ export default function CartPage() {
         setBusyId(cartItemId);
         try {
             await cartService.update(cartItemId, newQty);
+
             setItems((prev) =>
-                prev.map((i) => (i.cartItemId === cartItemId ? { ...i, quantity: newQty } : i))
+                prev.map((i) =>
+                    i.cartItemId === cartItemId ? { ...i, quantity: newQty } : i
+                )
             );
         } catch (err: any) {
             if (err.response?.status === 401) {
@@ -65,6 +70,35 @@ export default function CartPage() {
                 router.replace("/login?expired=true");
                 return;
             }
+
+            const code = err?.response?.data?.code;
+            const message = err?.response?.data?.error;
+
+            if (code === "INSUFFICIENT_STOCK") {
+                showNotification(
+                    message || "No hay stock suficiente para esa cantidad.",
+                    "error"
+                );
+                return;
+            }
+
+            if (code === "INVALID_QUANTITY") {
+                showNotification(
+                    message || "La cantidad ingresada no es válida.",
+                    "error"
+                );
+                return;
+            }
+
+            if (code === "CART_ITEM_NOT_FOUND") {
+                showNotification(
+                    message || "El producto del carrito ya no existe.",
+                    "error"
+                );
+                await loadCart();
+                return;
+            }
+
             setError("No se pudo actualizar la cantidad.");
         } finally {
             setBusyId(null);
@@ -82,6 +116,16 @@ export default function CartPage() {
                 router.replace("/login?expired=true");
                 return;
             }
+
+            const code = err?.response?.data?.code;
+            const message = err?.response?.data?.error;
+
+            if (code === "CART_ITEM_NOT_FOUND") {
+                showNotification(message || "El item no fue encontrado.", "error");
+                await loadCart();
+                return;
+            }
+
             setError("No se pudo eliminar el producto del carrito.");
         } finally {
             setBusyId(null);

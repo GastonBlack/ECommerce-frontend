@@ -21,14 +21,69 @@ export default function ProductModal({
     const inStock = product.stock > 0;
     const stockText = inStock ? `${product.stock} disponibles` : "Sin stock";
 
+    const handleCartError = (err: any) => {
+        if (err?.response?.status === 401) {
+            showNotification("Debes iniciar sesión para continuar.", "error");
+            router.push("/login");
+            return;
+        }
+
+        const code = err?.response?.data?.code;
+        const message = err?.response?.data?.error;
+
+        if (code === "INSUFFICIENT_STOCK") {
+            showNotification(
+                message || "No hay stock suficiente para este producto.",
+                "error"
+            );
+            return;
+        }
+
+        if (code === "INVALID_QUANTITY") {
+            showNotification(
+                message || "La cantidad ingresada no es válida.",
+                "error"
+            );
+            return;
+        }
+
+        if (code === "PRODUCT_NOT_FOUND") {
+            showNotification(
+                message || "El producto no fue encontrado.",
+                "error"
+            );
+            return;
+        }
+
+        showNotification("Error, no se pudo añadir al carrito.", "error");
+    };
+
+    const handleBuyNow = async () => {
+        try {
+            await cartService.add(product.id, 1);
+            window.dispatchEvent(new Event("cart-updated"));
+            router.push("/cart");
+        } catch (err: any) {
+            handleCartError(err);
+        }
+    };
+
+    const handleAddToCart = async () => {
+        try {
+            await cartService.add(product.id, 1);
+            window.dispatchEvent(new Event("cart-updated"));
+            showNotification("Producto añadido al carrito.", "success");
+        } catch (err: any) {
+            handleCartError(err);
+        }
+    };
+
     return (
-        // Overlay
         <div
             className="fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px]
                  md:flex md:items-center md:justify-center md:p-6"
             onClick={onClose}
         >
-            {/* Modal */}
             <div
                 className="
                     w-full md:w-[900px] md:max-w-[92vw]
@@ -77,7 +132,6 @@ export default function ProductModal({
                     <div className="p-4 sm:p-6 flex flex-col gap-4 min-h-0">
                         <div className="flex items-start justify-between gap-3">
                             <div className="flex flex-col gap-1">
-
                                 <span
                                     className={`
                                         inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold
@@ -86,10 +140,10 @@ export default function ProductModal({
                                 >
                                     {stockText}
                                 </span>
+
                                 <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">
                                     U$S {product.price}
                                 </p>
-
                             </div>
                         </div>
 
@@ -107,16 +161,7 @@ export default function ProductModal({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <button
                                     disabled={!inStock}
-                                    onClick={async () => {
-                                        try {
-                                            await cartService.add(product.id, 1);
-                                            router.push("/cart");
-                                        } catch (err: any) {
-                                            router.push("/");
-                                            console.error(err);
-                                            alert("Error.");
-                                        }
-                                    }}
+                                    onClick={handleBuyNow}
                                     className="
                                         h-12 w-full rounded-xl font-semibold text-sm bg-black text-white
                                         hover:bg-gray-900 transition
@@ -130,22 +175,7 @@ export default function ProductModal({
 
                                 <button
                                     disabled={!inStock}
-                                    onClick={async () => {
-                                        try {
-                                            await cartService.add(product.id, 1);
-                                            window.dispatchEvent(new Event("cart-updated")); // Para actualizar el puntito rojo del carrito.
-                                        } catch (err: any) {
-                                            if (err.response?.status === 401) {
-                                                router.push("/login");
-                                                showNotification("Error, usuario no encontrado.", "error")
-                                                return;
-                                            }
-                                            console.error(err);
-                                            showNotification("Error, no se pudo añadir al carrito.", "error")
-                                            return;
-                                        }
-                                        showNotification("Producto añadido al carrito.", "success")
-                                    }}
+                                    onClick={handleAddToCart}
                                     className="
                                         h-12 w-full rounded-xl font-semibold text-sm bg-blue-600 text-white
                                         hover:bg-blue-700 transition active:scale-[0.98]
