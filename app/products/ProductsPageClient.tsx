@@ -9,6 +9,7 @@ import { ProductFilters } from "@/lib/types/filters";
 import { Category } from "@/lib/types/category";
 import { categoryService } from "@/lib/api/category";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import SearchBar from "../components/SearchBar";
 
 export default function ProductsPageClient() {
     const [filtersOpen, setFiltersOpen] = useState(false);
@@ -131,6 +132,13 @@ export default function ProductsPageClient() {
                     </div>
 
                     <main className="flex-1 min-w-0">
+                        <SearchBar
+                            variant="products"
+                            onSearch={(searchQuery) => {
+                                const updatedFilters = { ...filters, search: searchQuery };
+                                handleFiltersChange(updatedFilters);
+                            }}
+                        />
                         <ProductsRender filters={filters} />
                     </main>
                 </div>

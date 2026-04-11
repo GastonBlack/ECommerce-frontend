@@ -79,7 +79,7 @@ export default function ProductsRender({ filters }: Props) {
             {loading ? (
                 <div
                     className="grid gap-4 sm:gap-6 items-stretch"
-                    style={{ gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))" }}
+                    style={{ gridTemplateColumns: "repeat(auto-fill, minmax(16rem, auto))" }}
                 >
                     {Array.from({ length: 8 }).map((_, i) => (
                         <div
@@ -115,7 +115,7 @@ export default function ProductsRender({ filters }: Props) {
             ) : (
                 <div
                     className="grid gap-4 sm:gap-6 items-stretch"
-                    style={{ gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))" }}
+                    style={{ gridTemplateColumns: "repeat(auto-fill, minmax(16rem, auto))" }}
                 >
                     {products.map((p: Product) => (
                         <div

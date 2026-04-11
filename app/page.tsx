@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 
 import { pickRandom } from "@/lib/utils/generalUtils";
 import { Circle } from "lucide-react";
+import SearchBar from "./components/SearchBar";
 
 export default function HomePage() {
     const [categories, setCategories] = useState<Category[]>([]);
@@ -63,6 +64,11 @@ export default function HomePage() {
     return (
         <div id="top" className="min-h-screen text-black bg-gray-100">
             <Header />
+
+            <SearchBar
+                variant="home"
+                onSearch={(query) => router.push(`/products?search=${encodeURIComponent(query)}`)}
+            />
 
             <section className="px-4 pt-4 mb-4">
                 <div className="w-full flex justify-center">
