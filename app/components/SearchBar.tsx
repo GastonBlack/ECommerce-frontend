@@ -9,7 +9,7 @@ interface SearchBarProps {
 
 export default function SearchBar({
     onSearch,
-    placeholder = 'Search products...',
+    placeholder = 'Buscar productos...',
     variant = 'products'
 }: SearchBarProps) {
     const [query, setQuery] = useState('');
